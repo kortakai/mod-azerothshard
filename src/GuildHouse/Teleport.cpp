@@ -252,7 +252,7 @@ bool nsNpcTel::IsValidData(const uint32 &cat,   const Flag &flag,
       case FLAG_RACE:
         if (data1)
             LOG_DEBUG("server", "Invalid data1 (category: %u).", cat);
-        if (0 < data0 && data0 < MAX_RACES)
+        if (0 < data0 && data0 <= RACE_DRAENEI)
             return true;
         LOG_DEBUG("server", "Invalid data0 (Race) (category: %u).", cat);
         return false;
