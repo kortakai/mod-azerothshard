@@ -2,6 +2,7 @@
 #include "AzthPlayer.h"
 #include "AZTH.h"
 #include "ScriptedGossip.h"
+#include "SpellMgr.h"
 
 #define MIN_RATING 1200
 #define AP_REQ 1000
