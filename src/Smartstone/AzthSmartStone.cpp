@@ -455,7 +455,7 @@ public:
     : PlayerScript("azth_smartstone_player_commands") {
     }
 
-    void OnLogin(Player *player) override {
+    void OnPlayerLogin(Player *player) override {
         QueryResult ssCommandsResult = CharacterDatabase.Query(
                 "SELECT command, dateExpired, charges FROM "
                 "character_smartstone_commands WHERE playerGuid = %d ;",
@@ -473,11 +473,11 @@ public:
         sAZTH->GetAZTHPlayer(player)->getLastPositionInfoFromDB();
     }
 
-    void OnLogout(Player* player) override {
+    void OnPlayerLogout(Player* player) override {
         sAZTH->GetAZTHPlayer(player)->saveLastPositionInfoToDB(player);
     }
 
-    void OnBeforeBuyItemFromVendor(Player* player, ObjectGuid vendorguid, uint32 vendorslot, uint32 &item, uint8 count, uint8  /*bag*/, uint8 /*slot*/) override {
+    void OnPlayerBeforeBuyItemFromVendor(Player* player, ObjectGuid vendorguid, uint32 vendorslot, uint32 &item, uint8 count, uint8  /*bag*/, uint8 /*slot*/) override {
         if (!sSmartStone->isNullCommand(sSmartStone->getCommandByItem(item))) {
             sAZTH->GetAZTHPlayer(player)->BuySmartStoneCommand(vendorguid, vendorslot, item, count, NULL_BAG, NULL_SLOT);
             item = 0;

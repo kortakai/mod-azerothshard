@@ -35,7 +35,7 @@ class PvPModeFirstLogin : public PlayerScript
 public:
     PvPModeFirstLogin() : PlayerScript("PvPModeFirstLogin") {}
 
-    void OnCreate(Player* player) override
+    void OnPlayerCreate(Player* player) override
     {
         sAZTH->GetAZTHPlayer(player)->loadPvPInfo();
 
@@ -60,16 +60,16 @@ public:
         }
     }
 
-    void OnFirstLogin(Player* player) override
+    void OnPlayerFirstLogin(Player* player) override
     {
         if (sAZTH->GetAZTHPlayer(player)->isPvP())
         {
-            // restore at first login flag for now, to be used inside OnLogin function
+            // restore at first login flag for now, to be used inside OnPlayerLogin function
             //player->SetAtLoginFlag(AT_LOGIN_FIRST);
         }
     }
 
-    void OnLogin(Player* player) override
+    void OnPlayerLogin(Player* player) override
     {
         sAZTH->GetAZTHPlayer(player)->loadPvPInfo();
 
@@ -161,7 +161,7 @@ public:
         }
     }
 
-    void OnMapChanged(Player* player) override {
+    void OnPlayerMapChanged(Player* player) override {
         if (!player)
             return;
 
@@ -180,7 +180,7 @@ public:
     }
 
     // logger for custom extended costs
-    void OnAfterStoreOrEquipNewItem(Player* player, uint32  /*vendorslot*/, Item* item, uint8  /*count*/, uint8  /*bag*/, uint8  /*slot*/, ItemTemplate const*  /*pProto*/, Creature* /*pVendor*/, VendorItem const*  /*crItem*/, bool  /*bStore*/) override
+    void OnPlayerAfterStoreOrEquipNewItem(Player* player, uint32  /*vendorslot*/, Item* item, uint8  /*count*/, uint8  /*bag*/, uint8  /*slot*/, ItemTemplate const*  /*pProto*/, Creature* /*pVendor*/, VendorItem const*  /*crItem*/, bool  /*bStore*/) override
     {
         if (!sAZTH->GetAZTHPlayer(player)->isPvP())
             return;
@@ -214,7 +214,7 @@ public:
         }*/
     }
 
-    void OnBeforeDurabilityRepair(Player * player, ObjectGuid  /*npcGUID*/, ObjectGuid  /*itemGUID*/, float & discountMod, uint8  /*guildbank*/) override {
+    void OnPlayerBeforeDurabilityRepair(Player * player, ObjectGuid  /*npcGUID*/, ObjectGuid  /*itemGUID*/, float & discountMod, uint8  /*guildbank*/) override {
         if (!sAZTH->GetAZTHPlayer(player)->isPvP())
             return;
 

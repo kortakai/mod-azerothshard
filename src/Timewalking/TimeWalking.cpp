@@ -352,7 +352,7 @@ public:
         return true;
     }
 
-    void OnUpdateArea(Player* player, uint32 oldArea, uint32 newArea) override
+    void OnPlayerUpdateArea(Player* player, uint32 oldArea, uint32 newArea) override
     {
         if (!player)
             return;
@@ -369,7 +369,7 @@ public:
         sAzthUtils->updateTwLevel(player, player->GetGroup()); // needed for player stats
     }
 
-    void OnBeforeUpdate(Player *player, uint32 /*p_time*/) override
+    void OnPlayerBeforeUpdate(Player *player, uint32 /*p_time*/) override
     {
         if (!player)
             return;
@@ -383,7 +383,7 @@ public:
         _autoscaling(player);
     }
 
-    void OnCriteriaProgress(Player *player, AchievementCriteriaEntry const* criteria) override
+    void OnPlayerCriteriaProgress(Player *player, AchievementCriteriaEntry const* criteria) override
     {
         if (!player || !player->IsInWorld())
             return;
@@ -508,7 +508,7 @@ public:
 
     }
 
-    bool OnBeforeQuestComplete(Player *player, uint32 quest_id) override
+    bool OnPlayerBeforeQuestComplete(Player *player, uint32 quest_id) override
     {
         QuestStatusMap::iterator qsitr = player->getQuestStatusMap().find(quest_id);
         if (qsitr == player->getQuestStatusMap().end()) // should always be true in this moment
@@ -575,7 +575,7 @@ public:
         return true;
     }
 
-    void OnLoadFromDB(Player *player) override
+    void OnPlayerLoadFromDB(Player *player) override
     {
         QueryResult timewalkingCharactersActive_table = CharacterDatabase.Query("SELECT `id`, `level` FROM `azth_timewalking_characters_active` WHERE `id`={}", player->GetGUID().GetCounter());
         if (timewalkingCharactersActive_table) //if is in timewalking mode apply debuff
@@ -586,9 +586,9 @@ public:
         }
     }
 
-    void OnLogin(Player* player) override
+    void OnPlayerLogin(Player* player) override
     {
-        sAzthUtils->updateTwLevel(player, player->GetGroup()); // to fix level on instance that cannot be calculated OnLoadFromDB (too early)
+        sAzthUtils->updateTwLevel(player, player->GetGroup()); // to fix level on instance that cannot be calculated OnPlayerLoadFromDB (too early)
         sAZTH->GetAZTHPlayer(player)->prepareTwSpells(player->GetLevel());
         sAzthUtils->setTwDefense(player, sAZTH->GetAZTHPlayer(player)->isTimeWalking(true));
 
@@ -626,12 +626,12 @@ public:
         }
     }
 
-    void OnLevelChanged(Player* player, uint8 /*oldlevel*/) override
+    void OnPlayerLevelChanged(Player* player, uint8 /*oldlevel*/) override
     {
         sAzthUtils->updateTwLevel(player, player->GetGroup());
     }
 
-    void OnBeforeInitTalentForLevel(Player* player, uint8&  /*level*/, uint32& talentPointsForLevel) override
+    void OnPlayerBeforeInitTalentForLevel(Player* player, uint8&  /*level*/, uint32& talentPointsForLevel) override
     {
         if (!sAzthUtils->isMythicLevel(sAZTH->GetAZTHPlayer(player)->GetTimeWalkingLevel()) // redundant (?)
             && (sAZTH->GetAZTHPlayer(player)->isTimeWalking(true) || sAZTH->GetAZTHPlayer(player)->GetTimeWalkingLevel() == TIMEWALKING_LVL_AUTO) )
