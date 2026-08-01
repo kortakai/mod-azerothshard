@@ -18,8 +18,9 @@ To uninstall:
 
 ## Configure
 
-Create a copy of the `azth_mod.conf.dist` and rename it as `azth_mod.conf` under your etc folder
-Then you can change configurations as you whish
+Create a copy of `AzerothShard.conf.dist` and rename it as `AzerothShard.conf` under your `etc/modules` folder.
+Solo 3v3 settings live in the separate `Solo3v3.conf.dist` template.
+Then you can change configurations as you wish.
 
 ## Features
 

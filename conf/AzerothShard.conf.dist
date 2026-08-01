@@ -13,6 +13,47 @@
 ########################################
 # AzerothShard module configuration
 ########################################
+[worldserver]
+
+#
+# PvP rank bonus honor.
+#
+
+PvPRank.Rate.ExtraHonor = 1
+PvPRank.HKPerRank = 10, 50, 100, 200, 450, 750, 1300, 2000, 3500, 6000, 9500, 15000, 21000, 30000
+
+#
+# External mail polling.
+#
+
+ExternalMail = 1
+ExternalMailInterval = 1
+
+#
+# Custom player XP command.
+#
+
+Player.customXP.security = 0
+Player.customXP.maxValue = 12
+Player.customXP.showOnLogin = 1
+
+#
+# Arena reward rates.
+#
+
+Azth.Rate.Arena1v1 = 0.2
+
+#
+# Smartstone features.
+#
+
+Azth.Smartstone.Teleport.Enable = 1
+
+#
+# Bonus loot multiplier for eligible timewalking/challenge content.
+#
+
+Azth.Multiplies.Drop.Enable = 1
 
 #
 # Difference between the position level and the player level to disable the reward
