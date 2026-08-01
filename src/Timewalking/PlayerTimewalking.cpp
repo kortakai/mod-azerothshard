@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "AzthLevelStat.h"
 #include "AzthUtils.h"
+#include "Chat.h"
 #include "Pet.h"
 #include "Opcodes.h"
 #include "AZTH.h"
@@ -354,7 +355,7 @@ bool AzthPlayer::canUseItem(Item * item, bool notify) {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellData.SpellId);
                 if (spellInfo && sAzthUtils->isNotAllowedSpellForTw(spellInfo)) {
                     if (notify) {
-                        player->GetSession()->SendNotification("This item is not allowed in Timewalking");
+                        ChatHandler(player->GetSession()).SendNotification("This item is not allowed in Timewalking");
                         player->SendEquipError(EQUIP_ERR_NONE, item, NULL);
                     }
                     return false;
@@ -372,7 +373,7 @@ bool AzthPlayer::itemCheckReqLevel(ItemTemplate const* proto, bool notify) {
     if (proto->ItemLevel == AZTH_TW_ILVL_NORMAL_ONLY) {
         if (!sAZTH->GetAZTHPlayer(player)->isTimeWalking(true)) {
             if (notify) {
-                player->GetSession()->SendNotification("This item can be used only with Timewalking level 1 to 79");
+                ChatHandler(player->GetSession()).SendNotification("This item can be used only with Timewalking level 1 to 79");
                 player->SendEquipError(EQUIP_ERR_NONE, NULL, NULL);
             }
 
@@ -388,7 +389,7 @@ bool AzthPlayer::itemCheckReqLevel(ItemTemplate const* proto, bool notify) {
         uint32 req=sAzthUtils->getCalcReqLevel(proto);
         if (req > level) {
             if (notify) {
-                player->GetSession()->SendNotification("Level Required for this item: %u", req);
+                ChatHandler(player->GetSession()).SendNotification("Level Required for this item: %u", req);
                 player->SendEquipError(EQUIP_ERR_NONE, NULL, NULL);
             }
 

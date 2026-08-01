@@ -3,6 +3,7 @@
 #include "SharedDefines.h"
 #include "Player.h"
 #include "Common.h"
+#include "Chat.h"
 #include "raid.h"
 #include "Creature.h"
 #include "AzthPlayer.h"
@@ -751,13 +752,13 @@ public:
 
                 if (count>=total)
                 {
-                    player->GetSession()->SendNotification("%s", sAzthLang->get(AZTH_LANG_TW_INSTANCE_COMPLETED, player));
+                    ChatHandler(player->GetSession()).SendNotification("%s", sAzthLang->get(AZTH_LANG_TW_INSTANCE_COMPLETED, player));
                     ChatHandler(player->GetSession()).SendSysMessage(sAzthLang->get(AZTH_LANG_TW_INSTANCE_COMPLETED, player));
                 }
 
                 if (dungeonCompleted)
                 {
-                    player->GetSession()->SendNotification("%s", sAzthLang->get(AZTH_LANG_TW_LAST_BOSS_KILLED, player));
+                    ChatHandler(player->GetSession()).SendNotification("%s", sAzthLang->get(AZTH_LANG_TW_LAST_BOSS_KILLED, player));
                     ChatHandler(player->GetSession()).SendSysMessage(sAzthLang->get(AZTH_LANG_TW_LAST_BOSS_KILLED, player));
                 }
 

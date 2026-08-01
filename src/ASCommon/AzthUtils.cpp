@@ -867,7 +867,7 @@ bool AzthUtils::canPrepareSpell(Spell* /*spell*/, Unit* /*m_caster*/, SpellInfo 
                 iscript->GetBossState(BOSS_HORSEMAN) == DONE &&
                 iscript->GetBossState(BOSS_THADDIUS) == DONE
             ) {
-                player->GetSession()->SendNotification("TIMEWALKING: You cannot be teleported! You must kill all bosses.");
+                ChatHandler(player->GetSession()).SendNotification("TIMEWALKING: You cannot be teleported! You must kill all bosses.");
                 return true;
             } else {
                 spell->SendCastResult(SPELL_FAILED_DONT_REPORT);

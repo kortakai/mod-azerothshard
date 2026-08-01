@@ -48,17 +48,17 @@ public:
 
     }
 
-    bool OnBeforeAchiComplete(Player* player, AchievementEntry const* /* achievement */) override
+    bool OnPlayerBeforeAchievementComplete(Player* player, AchievementEntry const* /* achievement */) override
     {
         return sChallengeMode->isEligibleForReward(player);
     }
 
-    bool OnBeforeCriteriaProgress(Player* player, AchievementCriteriaEntry const* /*criteria*/) override
+    bool OnPlayerBeforeCriteriaProgress(Player* player, AchievementCriteriaEntry const* /*criteria*/) override
     {
         return sChallengeMode->isEligibleForReward(player);
     }
 
-    void OnGiveXP(Player* player, uint32& amount, Unit* /* victim */, uint8 /*xpSource*/) override
+    void OnPlayerGiveXP(Player* player, uint32& amount, Unit* /* victim */, uint8 /*xpSource*/) override
     {
         if (!sChallengeMode->isEligibleForReward(player))
         {
