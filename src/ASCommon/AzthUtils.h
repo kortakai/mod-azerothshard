@@ -140,7 +140,7 @@ public:
     // horde version of objectmgr factionchangeitems map
     ObjectMgr::CharacterConversionMap FactionChangeItemsHorde;
 
-    std::list<uint32> startSpells[MAX_RACES][MAX_CLASSES];
+    std::list<uint32> startSpells[12][MAX_CLASSES];
 
     std::string GetItemIcon(uint32 entry, uint32 width, uint32 height, int x, int y);
     std::vector<std::string> getCategoryIconAndNameByItemType(uint32 itemType);

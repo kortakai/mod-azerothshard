@@ -1,4 +1,5 @@
 #include "AzthUtils.h"
+#include "Chat.h"
 #include "AzthLevelStat.h"
 #include "Pet.h"
 #include "SpellMgr.h"
@@ -137,7 +138,7 @@ void AzthUtils::loadClassSpells() {
         uint32 classMask = fields[1].Get<uint32>();
         uint32 spellId = fields[2].Get<uint32>();
 
-        if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
+        if (raceMask != 0 && !(raceMask & 0x6FF))
         {
             LOG_ERROR("sql.sql", "Wrong race mask %u in `playercreateinfo_spell_custom` table, ignoring.", raceMask);
             continue;
@@ -150,7 +151,7 @@ void AzthUtils::loadClassSpells() {
         }
 
 
-        for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
+        for (uint32 raceIndex = RACE_HUMAN; raceIndex < 12; ++raceIndex)
         {
             if (raceMask == 0 || ((1 << (raceIndex - 1)) & raceMask))
             {
@@ -332,7 +333,7 @@ uint32 AzthUtils::calculateItemScalingValue(ItemTemplate const * pProto, Player 
         return 0;
 
     uint32 req=getCalcReqLevel(pProto);
-    if (req <= pl->getLevel()) // remove / apply
+    if (req <= pl->GetLevel()) // remove / apply
         return 0;
 
     uint8 lowLevel = 0; // Default stats progression by item type
@@ -345,9 +346,9 @@ uint32 AzthUtils::calculateItemScalingValue(ItemTemplate const * pProto, Player 
        16 Very low stats progression
      */
 
-    /*if (pl->getLevel() + 10 > req) {        // from 0 to 9 level diff
+    /*if (pl->GetLevel() + 10 > req) {        // from 0 to 9 level diff
         lowLevel = 0;  // Default stats progression by item type
-    } else if (pl->getLevel() + 20 >= req) {  // from 10 to 20 level diff
+    } else if (pl->GetLevel() + 20 >= req) {  // from 10 to 20 level diff
         lowLevel = 4;  // Low Stats progression
     } else {*/                                // from 21 to max level diff
         //lowLevel = 16; // Very low stats progression
@@ -724,7 +725,7 @@ bool AzthUtils::isSharedArea(Player* /*player*/, MapEntry const *mEntry, uint32 
     mEntry->IsBattlegroundOrArena() // all bg and arena
     || mEntry->IsDungeon()          // is dungeon
     || mEntry->IsRaid()             // is raid
-    || zone == BATTLEFIELD_WG_ZONEID; // WG must be shared mainly because it's an open world BG, then because it apply phase 1 + horde/ally phase...so can collide
+    || zone == 4197; // WG must be shared mainly because it's an open world BG, then because it apply phase 1 + horde/ally phase...so can collide
 }
 
 PhaseDimensionsEnum AzthUtils::getCurrentDimensionByPhase(uint32 phase) {
@@ -828,7 +829,7 @@ SpellCastResult AzthUtils::checkSpellCast(Player* player, SpellInfo const* spell
     // Great feast and Fish Feast must be blocked for level < 70
     // they have been fixed in cataclysm but on wotlk it can be used
     // as exploit with low level players
-    if (player->getLevel() < 70 && (
+    if (player->GetLevel() < 70 && (
         spell->Id == 57399 // Well Fed - Fish Feast
         || spell->Id == 57294 // Well Fed - Great Feast
     )) {
@@ -837,7 +838,7 @@ SpellCastResult AzthUtils::checkSpellCast(Player* player, SpellInfo const* spell
 
     if (sAZTH->GetAZTHPlayer(player)->isTimeWalking(true) && sAzthUtils->isNotAllowedSpellForTw(spell)) {
         if (notify)
-            player->GetSession()->SendNotification("This spell is not allowed in Timewalking");
+            ChatHandler(player->GetSession()).SendNotification("This spell is not allowed in Timewalking");
         return SPELL_FAILED_DONT_REPORT;
     }
 

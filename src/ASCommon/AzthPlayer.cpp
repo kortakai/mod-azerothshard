@@ -67,7 +67,7 @@ bool AzthPlayer::AzthMaxPlayerSkill()
     if (!target)
         return false;
 
-    if (target->getLevel() < 80)
+    if (target->GetLevel() < 80)
     {
         ChatHandler(player->GetSession()).PSendSysMessage(LANG_LEVEL_MINREQUIRED, 80);
         return false;
@@ -362,14 +362,14 @@ bool AzthPlayer::changeDimension(uint32 dim, bool validate /* = false*/, bool te
         }*/
 
         if (dim == DIMENSION_60) {
-            if (player->getLevel() > 60 && sAZTH->GetAZTHPlayer(player)->GetTimeWalkingLevel() != TIMEWALKING_LVL_AUTO) {
+            if (player->GetLevel() > 60 && sAZTH->GetAZTHPlayer(player)->GetTimeWalkingLevel() != TIMEWALKING_LVL_AUTO) {
                 ChatHandler(player->GetSession()).SendSysMessage(sAzthLang->get(AZTH_LANG_MULTIDIMENSION_TW_CHECK60, player));
                 return false;
             }
         }
 
         if (dim == DIMENSION_70) {
-            if (player->getLevel() > 70 && sAZTH->GetAZTHPlayer(player)->GetTimeWalkingLevel() != TIMEWALKING_LVL_AUTO) {
+            if (player->GetLevel() > 70 && sAZTH->GetAZTHPlayer(player)->GetTimeWalkingLevel() != TIMEWALKING_LVL_AUTO) {
                 ChatHandler(player->GetSession()).SendSysMessage(sAzthLang->get(AZTH_LANG_MULTIDIMENSION_TW_CHECK70, player));
                 return false;
             }
@@ -514,7 +514,7 @@ bool AzthPlayer::canEquipItem(ItemTemplate const* proto)
     uint32 calcLevel = sAzthUtils->getCalcReqLevel(proto);
     if (!isTimeWalking(true)
         && proto->ScalingStatDistribution == 0
-        && player->getLevel() + 15 < static_cast<uint8>(calcLevel))
+        && player->GetLevel() + 15 < static_cast<uint8>(calcLevel))
     {
         ChatHandler(player->GetSession()).PSendSysMessage("Cannot equip this item. Its level is too high");
         return false;
