@@ -910,7 +910,9 @@ public:
     {
         if (sAZTH->GetAZTHPlayer(player)->isPvP() != sAZTH->GetAZTHPlayer(target)->isPvP())
         {
-            player->GetSession()->SendTradeStatus(TRADE_STATUS_CLOSE_WINDOW);
+            TradeStatusInfo info;
+            info.Status = TRADE_STATUS_CLOSE_WINDOW;
+            player->GetSession()->SendTradeStatus(info);
             return false;
         }
 

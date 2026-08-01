@@ -545,9 +545,9 @@ void SmartStone::SmartStoneSendListInventory(WorldSession *session, uint64 vendo
                 // Only display items in vendor lists for the team the
                 // player is on. If GM on, display all items.
                 if (!session->GetPlayer()->IsGameMaster() &&
-                        ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY &&
+                        ((itemTemplate->Flags2 & ITEM_FLAG2_FACTION_HORDE &&
                         session->GetPlayer()->GetTeamId() == TEAM_ALLIANCE) ||
-                        (itemTemplate->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY &&
+                        (itemTemplate->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE &&
                         session->GetPlayer()->GetTeamId() == TEAM_HORDE)))
                     continue;
 

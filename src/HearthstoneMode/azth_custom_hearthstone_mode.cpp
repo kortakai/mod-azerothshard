@@ -73,7 +73,7 @@ void HearthstoneMode::AzthSendListInventory(ObjectGuid vendorGuid, WorldSession 
                     continue;
                 // Only display items in vendor lists for the team the
                 // player is on. If GM on, display all items.
-                if (!session->GetPlayer()->IsGameMaster() && ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && session->GetPlayer()->GetTeamId() == TEAM_ALLIANCE) || (itemTemplate->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && session->GetPlayer()->GetTeamId() == TEAM_HORDE)))
+                if (!session->GetPlayer()->IsGameMaster() && ((itemTemplate->Flags2 & ITEM_FLAG2_FACTION_HORDE && session->GetPlayer()->GetTeamId() == TEAM_ALLIANCE) || (itemTemplate->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE && session->GetPlayer()->GetTeamId() == TEAM_HORDE)))
                     continue;
 
                 // Items sold out are not displayed in list
@@ -962,10 +962,10 @@ bool HearthstoneMode::PlayerCanUseItem(Item const* item, Player* player, bool cl
 
     if (proto)
     {
-        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && player->GetTeamId(true) != TEAM_HORDE)
+        if ((proto->Flags2 & ITEM_FLAG2_FACTION_HORDE) && player->GetTeamId(true) != TEAM_HORDE)
             return false;
 
-        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && player->GetTeamId(true) != TEAM_ALLIANCE)
+        if ((proto->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeamId(true) != TEAM_ALLIANCE)
             return false;
 
         if ((proto->AllowableClass & player->getClassMask()) == 0 || (proto->AllowableRace & player->getRaceMask()) == 0)
@@ -1213,4 +1213,3 @@ void AddSC_hearthstone()
     new npc_azth_resser();
     //new azth_hearthstone_world();
 }
-
