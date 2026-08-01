@@ -6,6 +6,7 @@
 #include "Pet.h"
 #include "Opcodes.h"
 #include "AZTH.h"
+#include "SpellMgr.h"
 
 uint32 AzthPlayer::GetTimeWalkingLevel() const
 {

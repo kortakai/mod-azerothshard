@@ -143,7 +143,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-		if (player->isUsingLfg())
+		if (player->IsUsingLfg())
 		{
 			SendGossipMenuFor(player,TIMEWALKING_GOSSIP_NPC_TEXT_ACTIVELFG, creature->GetGUID());
 			return true;

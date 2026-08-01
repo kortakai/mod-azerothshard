@@ -4,6 +4,7 @@
 #include "Spell.h"
 #include "AZTH.h"
 #include "AzthGroupMgr.h"
+#include "SpellMgr.h"
 
 class Spell;
 
