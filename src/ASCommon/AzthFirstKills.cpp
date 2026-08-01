@@ -39,7 +39,7 @@ bool AzthFirstKills::canCompleteAchi(Player */* player */, uint32 /* achiId */)
 {
     return true;
     /*
-    uint32 plLevel=sAZTH->GetAZTHPlayer(player)->isTimeWalking() ? sAZTH->GetAZTHPlayer(player)->GetTimeWalkingLevel() : player->getLevel();
+    uint32 plLevel=sAZTH->GetAZTHPlayer(player)->isTimeWalking() ? sAZTH->GetAZTHPlayer(player)->GetTimeWalkingLevel() : player->GetLevel();
     uint32 groupLevel=sAZTH->GetAZTHPlayer(player)->getGroupLevel(false);
 
     uint32 level=sAzthUtils->maxTwLevel(groupLevel, plLevel);

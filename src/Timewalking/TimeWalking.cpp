@@ -155,7 +155,7 @@ public:
         }
 
         if (!sAZTH->GetAZTHPlayer(player)->isTimeWalking()) {
-            if (player->getLevel()>=sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)) {
+            if (player->GetLevel()>=sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)) {
                 //AddGossipItemFor(player,GOSSIP_ICON_TABARD, "Tutte le fasi", GOSSIP_SENDER_MAIN, 5);
                 AddGossipItemFor(player,GOSSIP_ICON_INTERACT_1, "Livello specifico", GOSSIP_SENDER_MAIN, 6, "Imposta un livello", 0, true);
                 if (player->IsGameMaster()) {
@@ -343,7 +343,7 @@ public:
         if (!posLvl)
             return false;
 
-        if (player->getLevel() == posLvl)
+        if (player->GetLevel() == posLvl)
             return false;
 
         sAZTH->GetAZTHPlayer(player)->SetTimeWalkingLevel(TIMEWALKING_LVL_AUTO, true, true, false);
@@ -588,7 +588,7 @@ public:
     void OnLogin(Player* player) override
     {
         sAzthUtils->updateTwLevel(player, player->GetGroup()); // to fix level on instance that cannot be calculated OnLoadFromDB (too early)
-        sAZTH->GetAZTHPlayer(player)->prepareTwSpells(player->getLevel());
+        sAZTH->GetAZTHPlayer(player)->prepareTwSpells(player->GetLevel());
         sAzthUtils->setTwDefense(player, sAZTH->GetAZTHPlayer(player)->isTimeWalking(true));
 
         int32 rep=player->GetReputationMgr().GetReputation(AZTH_AS_REP);

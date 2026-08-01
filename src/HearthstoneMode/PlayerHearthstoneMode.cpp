@@ -128,7 +128,7 @@ bool AzthPlayer::passHsChecks(Quest const* qInfo, uint32 entry, uint32& realEntr
     }
     else if (qInfo->GetQuestLevel() <= 80) {
         uint32 groupLevel = this->getGroupLevel();
-        uint32 level = groupLevel > 0 ? groupLevel : this->player->getLevel();
+        uint32 level = groupLevel > 0 ? groupLevel : this->player->GetLevel();
 
         if (level >= qInfo->GetMinLevel() && qInfo->GetQuestLevel() > 0 && level <= uint32(qInfo->GetQuestLevel())) {
             for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j) {

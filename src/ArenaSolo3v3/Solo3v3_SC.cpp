@@ -95,7 +95,7 @@ public:
         {
         case 1: // Create new Arenateam
         {
-            if (sConfigMgr->GetOption<uint32>("Solo.3v3.MinLevel", 80) <= player->getLevel())
+            if (sConfigMgr->GetOption<uint32>("Solo.3v3.MinLevel", 80) <= player->GetLevel())
             {
                 int cost = sConfigMgr->GetOption<uint32>("Solo.3v3.Cost", 1);
 
@@ -235,7 +235,7 @@ private:
         if (!player || !me)
             return false;
 
-        if (sConfigMgr->GetOption<uint32>("Solo.3v3.MinLevel", 80) > player->getLevel())
+        if (sConfigMgr->GetOption<uint32>("Solo.3v3.MinLevel", 80) > player->GetLevel())
             return false;
 
         uint8 arenaslot = ArenaTeam::GetSlotByType(ARENA_TEAM_SOLO_3v3);
@@ -267,7 +267,7 @@ private:
 
         BattlegroundTypeId bgTypeId = bg->GetBgTypeID();
         BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenatype);
-        PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), player->getLevel());
+        PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), player->GetLevel());
         if (!bracketEntry)
             return false;
 

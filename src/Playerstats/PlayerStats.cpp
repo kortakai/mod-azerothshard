@@ -33,7 +33,7 @@ uint32 AzthPlayer::normalizeLvl(uint32 level)
             }
         }
         else
-            rLevel = player->getLevel();
+            rLevel = player->GetLevel();
     }
 
     return rLevel;
@@ -115,7 +115,7 @@ uint32 AzthPlayer::getPStatsLevel(bool normalize /*=true*/, bool checkInstance /
     // player
     if (!level)
     {
-        level = isTimeWalking() ? GetTimeWalkingLevel() : player->getLevel();
+        level = isTimeWalking() ? GetTimeWalkingLevel() : player->GetLevel();
 
         if (normalize)
             level = normalizeLvl(level);

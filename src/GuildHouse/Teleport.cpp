@@ -124,7 +124,7 @@ bool TELE::IsAllowedToTeleport(Player * const player) const
         return player->GetSession()->GetAccountId() == m_data0;
 
       case FLAG_LEVEL:
-        return player->getLevel() >= m_data0;
+        return player->GetLevel() >= m_data0;
 
       case FLAG_ITEM:
         return player->HasItemCount(m_data0, m_data1, true);

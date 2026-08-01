@@ -816,7 +816,7 @@ class npc_buffnpc : public CreatureScript
             AddGossipItemFor(player, 5, "Heal me please"                                , GOSSIP_SENDER_MAIN, 1195);
             AddGossipItemFor(player, 5, "Ritual of Souls please"                        , GOSSIP_SENDER_MAIN, 1200);
             AddGossipItemFor(player, 5, "Table please"                                  , GOSSIP_SENDER_MAIN, 1205);
-            if (player->getLevel() > 69)
+            if (player->GetLevel() > 69)
             {
                 AddGossipItemFor(player, 5, "Buff me Arcane Intelect"                       , GOSSIP_SENDER_MAIN, 1210);
                 AddGossipItemFor(player, 5, "Buff me Mark of the Wild"                      , GOSSIP_SENDER_MAIN, 1215);
@@ -839,7 +839,7 @@ class npc_buffnpc : public CreatureScript
             AddGossipItemFor(player, 5, "Heal me please"                                , GOSSIP_SENDER_MAIN, 1195);
             AddGossipItemFor(player, 5, "Ritual of Souls please"                        , GOSSIP_SENDER_MAIN, 1200);
             AddGossipItemFor(player, 5, "Table please"                                  , GOSSIP_SENDER_MAIN, 1205);
-            if (player->getLevel() > 69)
+            if (player->GetLevel() > 69)
             {
                 AddGossipItemFor(player, 5, "Buff me Arcane Intelect"                       , GOSSIP_SENDER_MAIN, 1210);
                 AddGossipItemFor(player, 5, "Buff me Mark of the Wild"                      , GOSSIP_SENDER_MAIN, 1215);
@@ -1171,7 +1171,7 @@ namespace
     {
         Dest dest (TabCatDest[Cat[player]].GetDest(id));
 
-        if (player->getLevel() < dest.m_level && !player->IsGameMaster())
+        if (player->GetLevel() < dest.m_level && !player->IsGameMaster())
         {
             std::string msg ("You do not have the required level. This destination requires level " + ConvertStr(dest.m_level) + ".");
             creature->Whisper(msg.c_str(), LANG_UNIVERSAL, player);

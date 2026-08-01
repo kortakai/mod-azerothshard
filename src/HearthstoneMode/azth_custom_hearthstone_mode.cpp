@@ -982,7 +982,7 @@ bool HearthstoneMode::PlayerCanUseItem(Item const* item, Player* player, bool cl
         if (proto->RequiredSpell != 0 && !player->HasSpell(proto->RequiredSpell))
             return false;
 
-        if (player->getLevel() < proto->RequiredLevel)
+        if (player->GetLevel() < proto->RequiredLevel)
             return false;
 
         const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =

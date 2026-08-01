@@ -174,7 +174,7 @@ void AzthUtils::setTwDefense(Player *player, bool apply) {
     player->RemoveAura(TIMEWALKING_AURA_MOD_DEFENSE_SKILL);
 
     if (apply) {
-        uint32 reduction= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - player->getLevel();
+        uint32 reduction= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - player->GetLevel();
         // 1 stack = 5 defense skill reduction
         player->SetAuraStack(TIMEWALKING_AURA_MOD_DEFENSE_SKILL, player, reduction);
     }
@@ -196,7 +196,7 @@ bool AzthUtils::updateTwLevel(Player *player,Group *group)
     if (!player || !sAZTH->GetAZTHPlayer(player) || player->IsGameMaster())
         return result;
 
-    uint32 levelPlayer = sAZTH->GetAZTHPlayer(player)->isTimeWalking() ? sAZTH->GetAZTHPlayer(player)->GetTimeWalkingLevel() : player->getLevel();
+    uint32 levelPlayer = sAZTH->GetAZTHPlayer(player)->isTimeWalking() ? sAZTH->GetAZTHPlayer(player)->GetTimeWalkingLevel() : player->GetLevel();
 
     if (AzthGroupMgr *azthGroup = sAZTH->GetAZTHGroup(group); azthGroup)
     {
@@ -283,7 +283,7 @@ bool AzthUtils::updateTwLevel(Player *player,Group *group)
 
 uint32 AzthUtils::selectSpellForTW(Player* player, uint32 spellId) {
     if (sAZTH->GetAZTHPlayer(player)->isTimeWalking(true)) {
-        uint32 spell=this->selectCorrectSpellRank(player->getLevel(), spellId);
+        uint32 spell=this->selectCorrectSpellRank(player->GetLevel(), spellId);
         if (spell)
             return spell;
     }
@@ -332,7 +332,7 @@ void AzthUtils::removeTimewalkingAura(Unit *unit) {
         if (aurApp->IsPositive() || unit->IsPet() || !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD)) // not negative death persistent auras
         {
             // keep auras that are lower or equal to unit level
-            if (spellLevel > 1 && spellLevel <= unit->getLevel())
+            if (spellLevel > 1 && spellLevel <= unit->GetLevel())
                 continue;
 
             unit->RemoveAura(iter);
@@ -341,7 +341,7 @@ void AzthUtils::removeTimewalkingAura(Unit *unit) {
         else if (aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_REMOVE_ENTERING_ARENA))
         {
             // keep auras that are lower or equal to unit level
-            if (spellLevel > 1 && spellLevel <= unit->getLevel())
+            if (spellLevel > 1 && spellLevel <= unit->GetLevel())
                 continue;
 
             unit->RemoveAura(iter);
@@ -459,11 +459,11 @@ int32 AzthUtils::getSpellReduction(Player *player, SpellInfo const* spellProto) 
     uint32 max; // max reduction
 
 
-    if (player->getLevel() > 70) { // from 71
+    if (player->GetLevel() > 70) { // from 71
         rate = 1.0f;
         min = 0;
         max = 50;
-    } else if (player->getLevel() >= 60) {
+    } else if (player->GetLevel() >= 60) {
         rate = 1.5f;
         min = 30;
         max = 95;
@@ -474,19 +474,19 @@ int32 AzthUtils::getSpellReduction(Player *player, SpellInfo const* spellProto) 
     }
 
     // proportional reduction with ranked spells
-    if (spellLevel > player->getLevel()) {
+    if (spellLevel > player->GetLevel()) {
         // when spell rank has an higher level
         // then player we must consider a special reduction
 
         // the most spell level is higher related to player level
         // the more the reduction is high
-        uint32 diff = uint8(spellLevel - player->getLevel());
+        uint32 diff = uint8(spellLevel - player->GetLevel());
         uint32 pct = ceil((diff * rate * 100) / spellLevel);
 
         return pct > max ? max : ( pct < min ? min : pct );
     } else {
-        uint32 diff = uint8(player->getLevel() - spellLevel);
-        uint32 bonus = ceil((player->getLevel() + diff) / 10 / 2);
+        uint32 diff = uint8(player->GetLevel() - spellLevel);
+        uint32 bonus = ceil((player->GetLevel() + diff) / 10 / 2);
         return bonus >= min ? 0 : min - bonus;
     }
 }
@@ -635,7 +635,7 @@ bool AzthUtils::canScaleSpell(SpellInfo const* spellProto) {
 }
 
 bool AzthUtils::disableEnchant(Player *player, SpellItemEnchantmentEntry const* pEnchant) {
-    uint32 level = player->getLevel();
+    uint32 level = player->GetLevel();
 
     // we can't only check isTimeWalking here because
     // at this time timewalking variable has been already set when switching to timewalking

@@ -27,7 +27,7 @@ bool ChallengeModeMgr::isEligibleForReward(Player const *player) {
     WorldLocation pos = WorldLocation(player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
     uint32 posLvl=sAzthUtils->getPositionLevel(false, player->GetMap(), pos);
 
-    uint32 level = player->getLevel();
+    uint32 level = player->GetLevel();
 
     // disable reward when the player has a higher level than the one specified in the configs
     // it can be useful to force players doing the challenges at the correct level (E.G. during the levelling)

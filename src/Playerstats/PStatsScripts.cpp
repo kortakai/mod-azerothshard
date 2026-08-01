@@ -43,7 +43,7 @@ public:
 
     void OnAchiComplete(Player *player, AchievementEntry const* achievement) override {
         AzthPlayer::AzthAchiData it = {
-            player->getLevel(),
+            player->GetLevel(),
             sAZTH->GetAZTHPlayer(player)->getGroupLevel(),
             sAZTH->GetAZTHPlayer(player)->getPStatsLevel(false)
         };
@@ -53,7 +53,7 @@ public:
 
     void OnCriteriaProgress(Player *player, AchievementCriteriaEntry const* criteria) override {
         AzthPlayer::AzthAchiData it = {
-            player->getLevel(),
+            player->GetLevel(),
             sAZTH->GetAZTHPlayer(player)->getGroupLevel(),
             sAZTH->GetAZTHPlayer(player)->getPStatsLevel(false)
         };

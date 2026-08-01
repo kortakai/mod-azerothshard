@@ -45,7 +45,7 @@ void AzthPlayer::SetTimeWalkingLevel(uint32 itsTimeWalkingLevel, bool clearAuras
 
     if (!login) {
         // hacking attempt?
-        if (timeWalkingLevel==0 && !sAzthUtils->isMythicLevel(itsTimeWalkingLevel) && player->getLevel()<sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (timeWalkingLevel==0 && !sAzthUtils->isMythicLevel(itsTimeWalkingLevel) && player->GetLevel()<sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
             return;
 
         uint32 iLvl=sAZTH->GetAZTHPlayer(player)->getTwItemLevel(itsTimeWalkingLevel);
@@ -62,7 +62,7 @@ void AzthPlayer::SetTimeWalkingLevel(uint32 itsTimeWalkingLevel, bool clearAuras
     uint32 realLevel = itsTimeWalkingLevel;
     uint32 statsLevel = itsTimeWalkingLevel;
 
-    uint32 oldLevel = player->getLevel();
+    uint32 oldLevel = player->GetLevel();
 
     if (itsTimeWalkingLevel>TIMEWALKING_SPECIAL_LVL_MIN && itsTimeWalkingLevel<=TIMEWALKING_SPECIAL_LVL_MAX) { // 300 + 255 levels
 
@@ -70,21 +70,21 @@ void AzthPlayer::SetTimeWalkingLevel(uint32 itsTimeWalkingLevel, bool clearAuras
             WorldLocation pos = WorldLocation(player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 
             uint32 posLvl=sAzthUtils->getPositionLevel(false, player->GetMap(), pos);
-            realLevel = statsLevel = posLvl ? posLvl : player->getLevel();
+            realLevel = statsLevel = posLvl ? posLvl : player->GetLevel();
 
             switch(sAZTH->GetAZTHPlayer(player)->getCurrentDimensionByAura()) {
                 case DIMENSION_60:
-                    if (player->getLevel() > 60)
+                    if (player->GetLevel() > 60)
                         realLevel = 60;
                 break;
                 case DIMENSION_70:
-                    if (player->getLevel() > 70)
+                    if (player->GetLevel() > 70)
                         realLevel = 70;
                 break;
             }
 
         } else {
-            realLevel =  player->getLevel();
+            realLevel =  player->GetLevel();
         }
     }
 
@@ -110,7 +110,7 @@ void AzthPlayer::SetTimeWalkingLevel(uint32 itsTimeWalkingLevel, bool clearAuras
 
             player->SendActionButtons(1);
 
-            if (player->GetPet() && player->GetPet()->getLevel() != realLevel) { // could happen
+            if (player->GetPet() && player->GetPet()->GetLevel() != realLevel) { // could happen
                 player->GetPet()->GivePetLevel(realLevel);
             }
         }
@@ -131,7 +131,7 @@ void AzthPlayer::SetTimeWalkingLevel(uint32 itsTimeWalkingLevel, bool clearAuras
     else
     {
         // used just to be able to loop on keys to remove auras
-        AzthLevelStat const *stats = sAzthUtils->getTwStats(player, player->getLevel());
+        AzthLevelStat const *stats = sAzthUtils->getTwStats(player, player->GetLevel());
         if (!stats)
             return;
 
@@ -247,12 +247,12 @@ void AzthPlayer::prepareTwSpells(uint32 oldLevel)
     bool isTw=isTimeWalking(true);
 
     // do nothing if we are not changing timewalking level
-    if (!isTw && oldLevel==player->getLevel())
+    if (!isTw && oldLevel==player->GetLevel())
         return;
 
     std::map<uint32 /*old*/, uint32 /*new*/> spellMap;
 
-    bool apply=isTw && player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+    bool apply=isTw && player->GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
 
     for (auto itr : player->GetSpellMap())
     {
@@ -293,7 +293,7 @@ void AzthPlayer::prepareTwSpells(uint32 oldLevel)
         while (!player->HasSpell(lastKnownSpell))
             lastKnownSpell = sSpellMgr->GetPrevSpellInChain(lastKnownSpell);
 
-        uint32 spell = sAzthUtils->selectCorrectSpellRank(apply ? player->getLevel() : oldLevel, lastKnownSpell);
+        uint32 spell = sAzthUtils->selectCorrectSpellRank(apply ? player->GetLevel() : oldLevel, lastKnownSpell);
 
         uint32 remove = apply ? lastKnownSpell : spell;
         uint32 learn  = apply ? spell : lastKnownSpell;
@@ -339,7 +339,7 @@ bool AzthPlayer::canUseItem(Item * item, bool notify) {
     if (!itemCheckReqLevel(proto, notify))
         return false;
 
-    uint32 level = player->getLevel();
+    uint32 level = player->GetLevel();
 
     // we must check also level because
     // this is called even when timewalking is set but level is not changed yet (when removing item bonuses)
@@ -367,7 +367,7 @@ bool AzthPlayer::canUseItem(Item * item, bool notify) {
 }
 
 bool AzthPlayer::itemCheckReqLevel(ItemTemplate const* proto, bool notify) {
-    uint32 level = player->getLevel();
+    uint32 level = player->GetLevel();
 
     if (proto->ItemLevel == AZTH_TW_ILVL_NORMAL_ONLY) {
         if (!sAZTH->GetAZTHPlayer(player)->isTimeWalking(true)) {

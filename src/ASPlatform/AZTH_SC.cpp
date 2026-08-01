@@ -110,7 +110,7 @@ public:
         if (!sArenaTeamMgr->GetArenaTeamById(ginfo->ArenaTeamId))
             return false;
 
-        sWorld->SendWorldText(LANG_AZTH_NO_INFO_ARENA_EXITED, ginfo->ArenaType, ginfo->ArenaType);
+        ChatHandler(nullptr).SendWorldText(LANG_AZTH_NO_INFO_ARENA_EXITED, ginfo->ArenaType, ginfo->ArenaType);
         return false;
     }
 
@@ -122,7 +122,7 @@ public:
         if (!sArenaTeamMgr->GetArenaTeamById(ginfo->ArenaTeamId))
             return false;
 
-        sWorld->SendWorldText(LANG_AZTH_NO_INFO_ARENA_JOINED, ginfo->ArenaType, ginfo->ArenaType); //[AZTH]
+        ChatHandler(nullptr).SendWorldText(LANG_AZTH_NO_INFO_ARENA_JOINED, ginfo->ArenaType, ginfo->ArenaType); //[AZTH]
         return false;
     }
 };
@@ -339,7 +339,7 @@ public:
             if (proto->ScalingStatValue == 0)
             {
                 // constant reduction since even with scaling, stats are too large
-                if ((player->getLevel() + 20) >= (uint8)req) // from 10 to 20 level diff
+                if ((player->GetLevel() + 20) >= (uint8)req) // from 10 to 20 level diff
                     val = val / 2;
                 else // from 21 to max level diff
                     val = val / 3;
@@ -458,10 +458,10 @@ public:
         {
             uint32 reqLevel = sAzthUtils->getCalcReqLevel(proto);
 
-            if (player->getLevel() < reqLevel)
+            if (player->GetLevel() < reqLevel)
             {
-                uint32 red = ceil(player->getLevel() * 100 / reqLevel / 2);
-                uint32 malus = ceil((reqLevel - player->getLevel()) / 10);
+                uint32 red = ceil(player->GetLevel() * 100 / reqLevel / 2);
+                uint32 malus = ceil((reqLevel - player->GetLevel()) / 10);
                 float pRed = float(red > malus ? red - malus : 1) / 100.0f; // convert to fraction
                 currentAmmoDPS = ceil(currentAmmoDPS * pRed);
             }
@@ -514,7 +514,7 @@ public:
 
         //[AZTH] if you are a timewalker you can equip all items
         // because you are an 80 with "fake low level"
-        if (!sAZTH->GetAZTHPlayer(player)->isTimeWalking() && player->getLevel() < proto->RequiredLevel)
+        if (!sAZTH->GetAZTHPlayer(player)->isTimeWalking() && player->GetLevel() < proto->RequiredLevel)
         {
             result = EQUIP_ERR_CANT_EQUIP_LEVEL_I;
             return false;
@@ -908,7 +908,7 @@ public:
     {
         if (sAZTH->GetAZTHPlayer(player)->isPvP() != sAZTH->GetAZTHPlayer(target)->isPvP())
         {
-            player->GetSession()->SendTradeStatus(TRADE_STATUS_NOT_ELIGIBLE);
+            player->GetSession()->SendTradeStatus(TRADE_STATUS_CLOSE_WINDOW);
             return false;
         }
 
@@ -1147,7 +1147,7 @@ public:
                 {
                     if (auraEff->GetSpellInfo()->EquippedItemClass == -1)
                         AddPct(doneTotalMod, -(reduction));
-                    else if (!auraEff->GetSpellInfo()->HasAttribute(SPELL_ATTR5_AURA_AFFECTS_NOT_JUST_REQ_EQUIPED_ITEM) && (auraEff->GetSpellInfo()->EquippedItemSubClassMask == 0))
+                    else if (!auraEff->GetSpellInfo()->HasAttribute(SPELL_ATTR5_AURA_AFFECTS_NOT_JUST_REQ_EQUIPPED_ITEM) && (auraEff->GetSpellInfo()->EquippedItemSubClassMask == 0))
                         AddPct(doneTotalMod, -(reduction));
                     else if (unit->ToPlayer() && unit->ToPlayer()->HasItemFitToSpellRequirements(auraEff->GetSpellInfo()))
                         AddPct(doneTotalMod, -(reduction));
@@ -1174,7 +1174,7 @@ public:
                 {
                     if (auraEff->GetSpellInfo()->EquippedItemClass == -1)
                         AddPct(doneTotalMod, -(reduction));
-                    else if (!auraEff->GetSpellInfo()->HasAttribute(SPELL_ATTR5_AURA_AFFECTS_NOT_JUST_REQ_EQUIPED_ITEM) && (auraEff->GetSpellInfo()->EquippedItemSubClassMask == 0))
+                    else if (!auraEff->GetSpellInfo()->HasAttribute(SPELL_ATTR5_AURA_AFFECTS_NOT_JUST_REQ_EQUIPPED_ITEM) && (auraEff->GetSpellInfo()->EquippedItemSubClassMask == 0))
                         AddPct(doneTotalMod, -(reduction));
                     else if (unit->ToPlayer() && unit->ToPlayer()->HasItemFitToSpellRequirements(auraEff->GetSpellInfo()))
                         AddPct(doneTotalMod, -(reduction));
@@ -1275,7 +1275,7 @@ public:
         if (!group || !leader)
             return;
 
-        CharacterDatabase.Execute("INSERT INTO `azth_groups` (`guid`, `MaxLevelGroup`) VALUES ({}, {})", group->GetGUID().GetCounter(), leader->getLevel());
+        CharacterDatabase.Execute("INSERT INTO `azth_groups` (`guid`, `MaxLevelGroup`) VALUES ({}, {})", group->GetGUID().GetCounter(), leader->GetLevel());
     }
 
     void OnDisband(Group* group) override
@@ -1364,7 +1364,7 @@ public:
                 return;
 
             if (sAZTH->GetAZTHPlayer(player)->isTimeWalking(guardian))
-                if (AzthLevelStat const* stats = sAzthUtils->getTwStats(player, player->getLevel()))
+                if (AzthLevelStat const* stats = sAzthUtils->getTwStats(player, player->GetLevel()))
                     sAzthUtils->setTwAuras(guardian, stats, true, true);
         }
     }
@@ -1499,7 +1499,7 @@ public:
         if (!targetInfo.scaleAura && auraScaleMask && targetInfo.effectMask == auraScaleMask)
         {
             SpellInfo const* auraSpell = spell->GetSpellInfo()->GetFirstRankSpell();
-            if (uint32(target->getLevel() + 10) >= auraSpell->SpellLevel)
+            if (uint32(target->GetLevel() + 10) >= auraSpell->SpellLevel)
                 targetInfo.scaleAura = true;
         }
     }
