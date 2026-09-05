@@ -1008,12 +1008,14 @@ public:
         if (!sConfigMgr->GetOption<bool>("Azth.Multiplies.Drop.Enable", false))
             return;
 
-        //Dangerous since it can drops multiple quest items
-        //[AZTH] give another loot process if done with correct level
+        // Bonus rolls apply to ordinary loot only. Quest loot is generated once.
+        // FillLoot builds quest ownership/counts after this callback returns.
         if (sAzthUtils->isEligibleForBonusByArea(lootOwner) && (&store == &LootTemplates_Gameobject || &store == &LootTemplates_Creature))
         {
             sAZTH->AddAZTHLoot(loot);
+            auto const questItemCount = loot->quest_items.size();
             tab->Process(*loot, store, lootMode, lootOwner);
+            loot->quest_items.resize(questItemCount);
         }
     }
 
