@@ -483,7 +483,7 @@ public:
     void OnPlayerLogin(Player *player) override {
         QueryResult ssCommandsResult = CharacterDatabase.Query(
                 "SELECT command, dateExpired, charges FROM "
-                "character_smartstone_commands WHERE playerGuid = %d ;",
+                "character_smartstone_commands WHERE playerGuid = {} ;",
                 player->GetGUID().GetCounter());
 
         if (ssCommandsResult) {
