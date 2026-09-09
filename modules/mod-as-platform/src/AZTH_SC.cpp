@@ -190,8 +190,8 @@ public:
         if (!guid)
             return;
 
-        trans->PAppend("DELETE FROM armory_character_stats WHERE guid = '%u'", guid);
-        trans->PAppend("DELETE FROM character_feed_log WHERE guid = '%u'", guid);
+        trans->Append("DELETE FROM armory_character_stats WHERE guid = {}", guid);
+        trans->Append("DELETE FROM character_feed_log WHERE guid = {}", guid);
     }
 
     bool CanRepopAtGraveyard(Player* player) override
@@ -653,7 +653,7 @@ public:
             azthPlayer->InitWowarmoryFeeds();
         }
 
-        wowArmoryTrans->PAppend("DELETE FROM armory_character_stats WHERE guid = %u", player->GetGUID().GetCounter());
+        wowArmoryTrans->Append("DELETE FROM armory_character_stats WHERE guid = {}", player->GetGUID().GetCounter());
 
         // Character stats
         std::ostringstream ps;

@@ -361,9 +361,8 @@ void AzthPlayer::saveLastPositionInfoToDB(Player *pl) {
     std::map<uint32,WorldLocation>::iterator it;
     for ( it = lastPositionInfo.begin(); it != lastPositionInfo.end(); it++ ) {
         WorldLocation _loc= it->second;
-        trans->PAppend("REPLACE INTO character_saved_position(charGuid,type,posX,posY,posZ,mapId) VALUES (%u, %u, %f, %f, %f, %u);", pl->GetGUID().GetCounter(), it->first, _loc.GetPositionX(), _loc.GetPositionY(), _loc.GetPositionZ(), _loc.GetMapId());
+        trans->Append("REPLACE INTO character_saved_position(charGuid,type,posX,posY,posZ,mapId) VALUES ({}, {}, {}, {}, {}, {});", pl->GetGUID().GetCounter(), it->first, _loc.GetPositionX(), _loc.GetPositionY(), _loc.GetPositionZ(), _loc.GetMapId());
     }
 
     CharacterDatabase.CommitTransaction(trans);
 };
-

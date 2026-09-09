@@ -191,8 +191,8 @@ public:
         if (!guid)
             return;
 
-        trans->Append("DELETE FROM armory_character_stats WHERE guid = '%u'", guid);
-        trans->Append("DELETE FROM character_feed_log WHERE guid = '%u'", guid);
+        trans->Append("DELETE FROM armory_character_stats WHERE guid = {}", guid);
+        trans->Append("DELETE FROM character_feed_log WHERE guid = {}", guid);
     }
 
     bool OnPlayerCanRepopAtGraveyard(Player* player) override
