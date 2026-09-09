@@ -525,7 +525,8 @@ public:
         if (!is)
             return true;
 
-        if (sAZTH->GetAZTHInstanceSave(is)->startTime == 0)
+        AzthInstanceMgr* instanceSave = sAZTH->GetAZTHInstanceSave(is);
+        if (!instanceSave || instanceSave->startTime == 0)
             return true;
 
         uint32 guid,quest,sLevel,nLevel, instanceStart=0, questEnd, groupId;
@@ -562,7 +563,7 @@ public:
 
         groupId = is->GetInstanceId();
 
-        instanceStart = sAZTH->GetAZTHInstanceSave(is)->startTime;
+        instanceStart = instanceSave->startTime;
 
         questEnd = static_cast<uint32>(time(NULL));
 
@@ -696,7 +697,8 @@ public:
             if (!is)
                 return;
 
-            if (sAZTH->GetAZTHInstanceSave(is)->startTime == 0)
+            AzthInstanceMgr* instanceSave = sAZTH->GetAZTHInstanceSave(is);
+            if (!instanceSave || instanceSave->startTime == 0)
                 return;
 
             uint8 count = 0;
@@ -721,7 +723,7 @@ public:
             gSize = sAZTH->GetAZTHPlayer(player)->getGroupSize();
 
             groupId = is->GetInstanceId();
-            instanceStart = sAZTH->GetAZTHInstanceSave(is)->startTime;
+            instanceStart = instanceSave->startTime;
             now = static_cast<uint32>(time(nullptr));
 
             std::string lvlTxt = sAzthUtils->getLevelInfo(sLevel);

@@ -1085,7 +1085,8 @@ public:
 
     void OnInstanceSave(InstanceSave* instanceSave) override
     {
-        sAZTH->GetAZTHInstanceSave(instanceSave)->saveToDb();
+        if (AzthInstanceMgr* azthInstanceSave = sAZTH->GetAZTHInstanceSave(instanceSave))
+            azthInstanceSave->saveToDb();
     }
 
     bool CanApplySoulboundFlag(Item* item, ItemTemplate const* /*proto*/) override

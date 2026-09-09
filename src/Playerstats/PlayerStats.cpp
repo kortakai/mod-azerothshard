@@ -82,9 +82,10 @@ uint32 AzthPlayer::getInstanceLevel(bool normalize /*=true*/)
         InstanceSave *is = sInstanceSaveMgr->PlayerGetInstanceSave(
             player->GetGUID(), map->GetId(),player->GetDifficulty((map->IsRaid())));
 
-        if (is && sAZTH->GetAZTHInstanceSave(is))
+        if (is)
         {
-            instanceLevel = sAZTH->GetAZTHInstanceSave(is)->levelMax;
+            if (AzthInstanceMgr* instanceSave = sAZTH->GetAZTHInstanceSave(is))
+                instanceLevel = instanceSave->levelMax;
 
             if (normalize)
                 instanceLevel = normalizeLvl(instanceLevel);
@@ -157,7 +158,10 @@ uint32 AzthPlayer::getInstanceSize()
         InstanceSave *is = sInstanceSaveMgr->PlayerGetInstanceSave(player->GetGUID(), map->GetId(), player->GetDifficulty((map->IsRaid())));
 
         if (is)
-            return sAZTH->GetAZTHInstanceSave(is)->groupSize;
+        {
+            if (AzthInstanceMgr* instanceSave = sAZTH->GetAZTHInstanceSave(is))
+                return instanceSave->groupSize;
+        }
     }
 
     return 0;

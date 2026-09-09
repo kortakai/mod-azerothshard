@@ -232,9 +232,9 @@ bool AzthUtils::updateTwLevel(Player *player,Group *group)
     {
         bool updated = false;
         InstanceSave* is = sInstanceSaveMgr->PlayerGetInstanceSave(player->GetGUID(), map->GetId(), player->GetDifficulty(map->IsRaid()));
-        if (is) // negative condition shouldn't happen (maybe only on login?)
+        if (AzthInstanceMgr* instanceSave = is ? sAZTH->GetAZTHInstanceSave(is) : nullptr)
         {
-            if (sAZTH->GetAZTHInstanceSave(is)->levelMax == 0)
+            if (instanceSave->levelMax == 0)
             {
                 sAZTH->GetAZTHPlayer(player)->instanceID = map->GetInstanceId();
 
@@ -243,35 +243,35 @@ bool AzthUtils::updateTwLevel(Player *player,Group *group)
                     return result;
 
                 Field* fields = queryRes->Fetch();
-                sAZTH->GetAZTHInstanceSave(is)->levelMax = fields[0].Get<uint32>();
-                sAZTH->GetAZTHInstanceSave(is)->groupSize = fields[1].Get<uint32>();
+                instanceSave->levelMax = fields[0].Get<uint32>();
+                instanceSave->groupSize = fields[1].Get<uint32>();
                 uint32 startTime = fields[2].Get<uint32>();
 
                 if (startTime)
-                    sAZTH->GetAZTHInstanceSave(is)->startTime = startTime;
+                    instanceSave->startTime = startTime;
 
                 updated = true;
             }
 
-            uint32 maxLevel = sAzthUtils->maxTwLevel(levelPlayer, sAZTH->GetAZTHInstanceSave(is)->levelMax);
-            if (maxLevel != sAZTH->GetAZTHInstanceSave(is)->levelMax)
+            uint32 maxLevel = sAzthUtils->maxTwLevel(levelPlayer, instanceSave->levelMax);
+            if (maxLevel != instanceSave->levelMax)
             {
-                sAZTH->GetAZTHInstanceSave(is)->levelMax = maxLevel;
+                instanceSave->levelMax = maxLevel;
                 updated = true;
             }
 
             uint32 cnt = map->GetPlayersCountExceptGMs();
-            if (cnt > sAZTH->GetAZTHInstanceSave(is)->groupSize)
+            if (cnt > instanceSave->groupSize)
             {
-                sAZTH->GetAZTHInstanceSave(is)->groupSize = cnt;
+                instanceSave->groupSize = cnt;
                 updated = true;
             }
 
             if (updated)
             {
                 is->InsertToDB();
-                std::string _slvl = sAzthUtils->getLevelInfo(sAZTH->GetAZTHInstanceSave(is)->levelMax);
-                std::string msg = sAzthLang->getf(AZTH_LANG_INSTANCE_LEVEL_REG, player, player->GetName().c_str(), _slvl.c_str(), sAZTH->GetAZTHInstanceSave(is)->groupSize);
+                std::string _slvl = sAzthUtils->getLevelInfo(instanceSave->levelMax);
+                std::string msg = sAzthLang->getf(AZTH_LANG_INSTANCE_LEVEL_REG, player, player->GetName().c_str(), _slvl.c_str(), instanceSave->groupSize);
 
                 sAzthUtils->sendMessageToGroup(player, player->GetGroup(), msg.c_str());
                 result = true;
