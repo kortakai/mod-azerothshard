@@ -329,7 +329,7 @@ void GuildHouseObject::LoadGuildHouse()
     // }
     // while (result->NextRow());
 
-    LOG_INFO("server", "Loaded  %lu Guildhouses", GH_map.size());
+    LOG_INFO("server", "Loaded {} Guildhouses", GH_map.size());
 }
 
 void GuildHouseObject::LoadGuildHouseAdd()
