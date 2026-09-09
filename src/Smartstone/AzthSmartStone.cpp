@@ -1,5 +1,7 @@
 #include "AzthSmartStone.h"
 #include "Common.h"
+#include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Define.h"
 #include "GossipDef.h"
 #include "Item.h"
@@ -39,7 +41,35 @@ enum SmartStoneCommands
     SMRTST_BACK_MENU=2001,
     SMRTST_README=60402,
     SMRTST_README_CHILD=60400,
+    SMRTST_PREMIUM_MENU=91000,
+    SMRTST_PREMIUM_BANK=91001,
+    SMRTST_PREMIUM_VENDOR=91002,
+    SMRTST_PREMIUM_MAIL=91003,
+    SMRTST_PREMIUM_REPAIR=91004,
 };
+
+constexpr uint32 AETHRO_SANCTUARY_VENDOR = 900004;
+
+bool IsPremiumSmartStoneAccount(Player* player)
+{
+    if (!player || !player->GetSession())
+        return false;
+
+    QueryResult result = LoginDatabase.Query("SELECT `premium` FROM `account` WHERE `id` = {}",
+        player->GetSession()->GetAccountId());
+    return result && result->Fetch()[0].Get<uint8>() == 1;
+}
+
+bool CanUsePremiumSmartStoneService(Player* player)
+{
+    return player && player->IsAlive() && !player->IsInCombat() && !player->IsInFlight() &&
+        !player->InBattleground() && !player->InArena();
+}
+
+void SendPremiumSmartStoneDenied(Player* player)
+{
+    ChatHandler(player->GetSession()).SendSysMessage("This SmartStone service requires an active Aethro Premium account.");
+}
 
 /*static*/ SmartStone* SmartStone::instance()
 {
@@ -141,6 +171,53 @@ public:
             return;
         }
 
+        if (action >= SMRTST_PREMIUM_MENU && action <= SMRTST_PREMIUM_REPAIR) {
+            if (!IsPremiumSmartStoneAccount(player)) {
+                SendPremiumSmartStoneDenied(player);
+                CloseGossipMenuFor(player);
+                return;
+            }
+            if (!CanUsePremiumSmartStoneService(player)) {
+                ChatHandler(player->GetSession()).SendSysMessage("This SmartStone service cannot be used in your current state.");
+                CloseGossipMenuFor(player);
+                return;
+            }
+
+            switch (action) {
+                case SMRTST_PREMIUM_MENU:
+                    parent = SMRTST_PREMIUM_MENU;
+                    OnUse(player, item, SpellCastTargets());
+                    return;
+                case SMRTST_PREMIUM_BANK:
+                    player->GetSession()->SendShowBank(player->GetGUID());
+                    break;
+                case SMRTST_PREMIUM_VENDOR:
+                {
+                    Position pos = player->GetNearPosition(2.0f, 0.0f);
+                    if (Creature* vendor = player->SummonCreature(AETHRO_SANCTUARY_VENDOR, pos,
+                        TEMPSUMMON_TIMED_DESPAWN, 90 * IN_MILLISECONDS))
+                        player->GetSession()->SendListInventory(vendor->GetGUID());
+                    else
+                        ChatHandler(player->GetSession()).SendSysMessage("The Premium Vendor is unavailable right now.");
+                    break;
+                }
+                case SMRTST_PREMIUM_MAIL:
+                    player->GetSession()->SendShowMailBox(player->GetGUID());
+                    break;
+                case SMRTST_PREMIUM_REPAIR:
+                {
+                    uint32 cost = player->DurabilityRepairAll(true, 1.0f, false);
+                    if (cost)
+                        ChatHandler(player->GetSession()).PSendSysMessage("Equipment repaired for {} copper.", cost);
+                    else
+                        ChatHandler(player->GetSession()).SendSysMessage("No equipment could be repaired, or you do not have enough gold.");
+                    break;
+                }
+            }
+            CloseGossipMenuFor(player);
+            return;
+        }
+
         SmartStoneCommand selectedCommand = sSmartStone->getCommandById(action);
 
         // scripted action
@@ -239,69 +316,17 @@ public:
     {
         player->PlayerTalkClass->ClearMenus();
 
-        if (parent == 1) // not-to-buy commands for the main menu
+        if (parent == 1) // Aethro-only main menu
         {
-            // black market teleport id 1
-            SmartStoneCommand teleport = sSmartStone->getCommandById(SMRTST_BLACK_MARKET);
-
-            if (sConfigMgr->GetOption<bool>("Azth.Smartstone.Teleport.Enable", false))
-            {
-                if (!sAZTH->GetAZTHPlayer(player)->isInBlackMarket())
-                {
-                    /*if (sAZTH->GetAZTHPlayer(player)->isPvP())
-                        AddGossipItemFor(player,teleport.icon, sAzthLang->get(AZTH_LANG_SS_TELEPORT_BACK, player), GOSSIP_SENDER_MAIN, teleport.id);*/
-
-                    AddGossipItemFor(player,teleport.icon, teleport.getText(player), GOSSIP_SENDER_MAIN, teleport.id);
-                }
-                else
-                    AddGossipItemFor(player,teleport.icon, sAzthLang->get(AZTH_LANG_SS_TELEPORT_BACK, player), GOSSIP_SENDER_MAIN, teleport.id);
-            } else {
-                AddGossipItemFor(player,teleport.icon, sAzthLang->get(AZTH_LANG_SS_TELEPORT_DISABLED, player), GOSSIP_SENDER_MAIN, 0);
-            }
-
-            if (!sAZTH->GetAZTHPlayer(player)->isPvP())
-                player->PlayerTalkClass->GetGossipMenu().AddMenuItem(SMRTST_README, 0, GOSSIP_SENDER_MAIN, SMRTST_README_CHILD, 0);
-
-            // menu character (rename, change faction, etc) id 4
-            SmartStoneCommand characterMenu = sSmartStone->getCommandById(SMRTST_CHAR_MENU);
-            AddGossipItemFor(player,characterMenu.icon, characterMenu.getText(player), GOSSIP_SENDER_MAIN, characterMenu.id);
-
-            // menu passive bonus id 9
-            SmartStoneCommand passiveMenu = sSmartStone->getCommandById(SMRTST_BONUS_MENU);
-            AddGossipItemFor(player,passiveMenu.icon, passiveMenu.getText(player), GOSSIP_SENDER_MAIN, passiveMenu.id);
+            AddGossipItemFor(player, 0, "Premium Services", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_MENU);
         }
 
-        if (parent == 2) // not-to-buy commands for the characters menu
+        if (parent == SMRTST_PREMIUM_MENU)
         {
-            // max skill command
-            SmartStoneCommand maxSkill = sSmartStone->getCommandById(SMRTST_MAX_SKILL);
-            AddGossipItemFor(player,maxSkill.icon, maxSkill.getText(player), GOSSIP_SENDER_MAIN, maxSkill.id);
-
-            // azth xp command
-            SmartStoneCommand azthXp = sSmartStone->getCommandById(SMRTST_XP_CHANGE);
-            AddGossipItemFor(player,azthXp.icon, azthXp.getText(player), GOSSIP_SENDER_MAIN, azthXp.id, sAzthLang->get(AZTH_LANG_SS_VALUE, player), 0, true);
-
-            // reset auras
-            SmartStoneCommand resetAuras = sSmartStone->getCommandById(SMRTST_RESET_AURAS);
-            AddGossipItemFor(player,resetAuras.icon, resetAuras.getText(player), GOSSIP_SENDER_MAIN, resetAuras.id);
-
-            if (sAZTH->GetAZTHPlayer(player)->isPvP()) {
-                // dalaran teleport
-                SmartStoneCommand dalaranTeleport = sSmartStone->getCommandById(SMRTST_TELEPORT_DALARAN);
-                AddGossipItemFor(player,dalaranTeleport.icon, dalaranTeleport.getText(player), GOSSIP_SENDER_MAIN, dalaranTeleport.id);
-            }
-
-            if (sAZTH->GetAZTHPlayer(player)->getCurrentDimensionByAura() == DIMENSION_RPG) {
-                Player *owner=getHomeOwner(player);
-
-                if (MapMgr::IsValidMapCoord(sAZTH->GetAZTHPlayer(owner)->getLastPositionInfo(AZTH_SMRTST_POSITION_HOUSE_INDEX))) {
-                    // home teleport for RPG world
-                    SmartStoneCommand homeTeleport = sSmartStone->getCommandById(SMRTST_TELEPORT_HOUSE);
-                    std::string str=homeTeleport.getText(player) + " (" +owner->GetName()+")";
-
-                    AddGossipItemFor(player,homeTeleport.icon, str.c_str() , GOSSIP_SENDER_MAIN, homeTeleport.id);
-                }
-            }
+            AddGossipItemFor(player, 0, "Personal Bank", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_BANK);
+            AddGossipItemFor(player, 0, "Premium Vendor", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_VENDOR);
+            AddGossipItemFor(player, 0, "Mailbox", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_MAIL);
+            AddGossipItemFor(player, 0, "Repair Equipment", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_REPAIR);
         }
 
         std::vector<SmartStonePlayerCommand> & playerCommands =
@@ -339,7 +364,7 @@ public:
                 }
             }
 
-            if (command.id != 0 && command.parent_menu == parent) {
+            if (parent != 1 && parent != SMRTST_PREMIUM_MENU && command.id != 0 && command.parent_menu == parent) {
                 if (command.type != DO_SCRIPTED_ACTION_WITH_CODE) {
                     AddGossipItemFor(player,command.icon, text, GOSSIP_SENDER_MAIN, command.id);
                 } else {
