@@ -34,7 +34,7 @@ ExternalMailInterval = 1
 #
 
 Player.customXP.security = 0
-Player.customXP.maxValue = 12
+Player.customXP.maxValue = 5
 Player.customXP.showOnLogin = 1
 
 #

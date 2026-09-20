@@ -4,6 +4,7 @@
 #include "DatabaseEnv.h"
 #include "Define.h"
 #include "GossipDef.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
 #include "ObjectMgr.h"
@@ -20,6 +21,7 @@
 #include "Group.h"
 #include "AZTH.h"
 #include "Apps.h"
+#include <unordered_map>
 
 enum SmartStoneCommands
 {
@@ -48,9 +50,69 @@ enum SmartStoneCommands
     SMRTST_PREMIUM_VENDOR=59002,
     SMRTST_PREMIUM_MAIL=59003,
     SMRTST_PREMIUM_REPAIR=59004,
+    SMRTST_PREMIUM_WORKSHOP=59005,
+    SMRTST_PREMIUM_XP_RATE=59006,
+    SMRTST_PREMIUM_XP_RATE_01=59010,
+    SMRTST_PREMIUM_XP_RATE_05=59011,
+    SMRTST_PREMIUM_XP_RATE_1=59012,
+    SMRTST_PREMIUM_XP_RATE_2=59013,
+    SMRTST_PREMIUM_XP_RATE_3=59014,
+    SMRTST_PREMIUM_XP_RATE_4=59015,
+    SMRTST_PREMIUM_XP_RATE_5=59016,
 };
 
 constexpr uint32 AETHRO_SANCTUARY_VENDOR = 900004;
+constexpr uint32 FIELD_WORKSHOP_ANVIL = 1744;
+constexpr uint32 FIELD_WORKSHOP_FORGE = 1743;
+constexpr uint32 FIELD_WORKSHOP_MOONWELL = 19260;
+constexpr uint32 FIELD_WORKSHOP_COOKING_FIRE = 1915;
+constexpr uint32 FIELD_WORKSHOP_DURATION = 5 * MINUTE;
+constexpr uint32 FIELD_WORKSHOP_COOLDOWN = 10 * MINUTE;
+
+std::unordered_map<uint32, time_t> activeWorkshops;
+std::unordered_map<uint32, time_t> workshopCooldowns;
+
+float GetSmartStoneXPSelection(uint32 action)
+{
+    switch (action)
+    {
+        case SMRTST_PREMIUM_XP_RATE_01: return 0.1f;
+        case SMRTST_PREMIUM_XP_RATE_05: return 0.5f;
+        case SMRTST_PREMIUM_XP_RATE_1: return 1.0f;
+        case SMRTST_PREMIUM_XP_RATE_2: return 2.0f;
+        case SMRTST_PREMIUM_XP_RATE_3: return 3.0f;
+        case SMRTST_PREMIUM_XP_RATE_4: return 4.0f;
+        case SMRTST_PREMIUM_XP_RATE_5: return 5.0f;
+        default: return -1.0f;
+    }
+}
+
+bool SummonPremiumFieldWorkshop(Player* player)
+{
+    time_t const now = GameTime::GetGameTime().count();
+    uint32 const guid = player->GetGUID().GetCounter();
+    if (auto const active = activeWorkshops.find(guid); active != activeWorkshops.end() && active->second > now)
+    {
+        ChatHandler(player->GetSession()).SendSysMessage("Your Premium Field Workshop is already active.");
+        return false;
+    }
+    if (auto const cooldown = workshopCooldowns.find(guid); cooldown != workshopCooldowns.end() && cooldown->second > now)
+    {
+        ChatHandler(player->GetSession()).SendSysMessage("Your Premium Field Workshop is recharging. Please try again shortly.");
+        return false;
+    }
+
+    Position pos = player->GetPosition();
+    float const orientation = player->GetOrientation();
+    player->SummonGameObject(FIELD_WORKSHOP_ANVIL, pos.GetPositionX() + 2.0f, pos.GetPositionY(), pos.GetPositionZ(), orientation, 0.0f, 0.0f, 0.0f, 0.0f, FIELD_WORKSHOP_DURATION);
+    player->SummonGameObject(FIELD_WORKSHOP_FORGE, pos.GetPositionX() - 2.0f, pos.GetPositionY(), pos.GetPositionZ(), orientation, 0.0f, 0.0f, 0.0f, 0.0f, FIELD_WORKSHOP_DURATION);
+    player->SummonGameObject(FIELD_WORKSHOP_MOONWELL, pos.GetPositionX(), pos.GetPositionY() + 2.5f, pos.GetPositionZ(), orientation, 0.0f, 0.0f, 0.0f, 0.0f, FIELD_WORKSHOP_DURATION);
+    player->SummonGameObject(FIELD_WORKSHOP_COOKING_FIRE, pos.GetPositionX(), pos.GetPositionY() - 2.5f, pos.GetPositionZ(), orientation, 0.0f, 0.0f, 0.0f, 0.0f, FIELD_WORKSHOP_DURATION);
+    activeWorkshops[guid] = now + FIELD_WORKSHOP_DURATION;
+    workshopCooldowns[guid] = now + FIELD_WORKSHOP_COOLDOWN;
+    ChatHandler(player->GetSession()).SendSysMessage("Your Premium Field Workshop will remain available for five minutes.");
+    return true;
+}
 
 bool IsPremiumSmartStoneAccount(Player* player)
 {
@@ -173,7 +235,7 @@ public:
             return;
         }
 
-        if (action >= SMRTST_PREMIUM_MENU && action <= SMRTST_PREMIUM_REPAIR) {
+        if (action >= SMRTST_PREMIUM_MENU && action <= SMRTST_PREMIUM_XP_RATE_5) {
             if (!IsPremiumSmartStoneAccount(player)) {
                 SendPremiumSmartStoneDenied(player);
                 CloseGossipMenuFor(player);
@@ -213,6 +275,20 @@ public:
                         ChatHandler(player->GetSession()).PSendSysMessage("Equipment repaired for {} copper.", cost);
                     else
                         ChatHandler(player->GetSession()).SendSysMessage("No equipment could be repaired, or you do not have enough gold.");
+                    break;
+                }
+                case SMRTST_PREMIUM_WORKSHOP:
+                    SummonPremiumFieldWorkshop(player);
+                    break;
+                case SMRTST_PREMIUM_XP_RATE:
+                    parent = SMRTST_PREMIUM_XP_RATE;
+                    OnUse(player, item, SpellCastTargets());
+                    return;
+                default:
+                {
+                    float rate = GetSmartStoneXPSelection(action);
+                    if (rate >= 0.0f)
+                        sAZTH->GetAZTHPlayer(player)->AzthSelfChangeXp(rate);
                     break;
                 }
             }
@@ -329,6 +405,19 @@ public:
             AddGossipItemFor(player, 0, "Premium Vendor", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_VENDOR);
             AddGossipItemFor(player, 0, "Mailbox", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_MAIL);
             AddGossipItemFor(player, 0, "Repair Equipment", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_REPAIR);
+            AddGossipItemFor(player, 0, "Premium Field Workshop", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_WORKSHOP);
+            AddGossipItemFor(player, 0, "Experience Rate", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_XP_RATE);
+        }
+
+        if (parent == SMRTST_PREMIUM_XP_RATE)
+        {
+            AddGossipItemFor(player, 0, "Set experience rate to 0.1x", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_XP_RATE_01);
+            AddGossipItemFor(player, 0, "Set experience rate to 0.5x", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_XP_RATE_05);
+            AddGossipItemFor(player, 0, "Set experience rate to 1x", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_XP_RATE_1);
+            AddGossipItemFor(player, 0, "Set experience rate to 2x", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_XP_RATE_2);
+            AddGossipItemFor(player, 0, "Set experience rate to 3x", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_XP_RATE_3);
+            AddGossipItemFor(player, 0, "Set experience rate to 4x", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_XP_RATE_4);
+            AddGossipItemFor(player, 0, "Set experience rate to 5x", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_XP_RATE_5);
         }
 
         std::vector<SmartStonePlayerCommand> & playerCommands =

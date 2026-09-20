@@ -30,9 +30,9 @@ bool AzthPlayer::AzthSelfChangeXp(float rate) {
     sAZTH->GetAZTHPlayer(player)->SetPlayerQuestRate(rate);
 
     if (sAZTH->GetAZTHPlayer(player)->GetPlayerQuestRate() == 0.0f)
-        ch->PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Quest & Dungeons XP Rate set to 0. You won't gain any experience from now on.");
+        ch->PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Quest, kill & dungeon XP rate set to 0. You won't gain any experience from now on.");
     else
-        ch->PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Quest & Dungeons XP Rate set to %.2f.", sAZTH->GetAZTHPlayer(player)->GetPlayerQuestRate());
+        ch->PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Quest, kill & dungeon XP rate set to %.2f.", sAZTH->GetAZTHPlayer(player)->GetPlayerQuestRate());
 
     return true;
 };
