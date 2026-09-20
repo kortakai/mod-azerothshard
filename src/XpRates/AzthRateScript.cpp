@@ -101,7 +101,7 @@ public:
                 if (!rate)
                     ChatHandler(player->GetSession()).SendSysMessage("|CFF7BBEF7[Custom Rates]|r: Your quest XP rate was set to 0. You won't gain any XP from quest completation.");
                 else
-                    ChatHandler(player->GetSession()).PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Your quest XP rate was set to %.2f.", rate);
+                    ChatHandler(player->GetSession()).PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Your quest, kill & dungeon XP rate is set to {:.2f}.", rate);
             }
         }
     }

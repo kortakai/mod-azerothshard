@@ -21,7 +21,7 @@ bool AzthPlayer::AzthSelfChangeXp(float rate) {
     float maxRate = sAZTH->GetCustomXPMax();
     if (rate < 0 || rate > maxRate)
     {
-        ch->PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Invalid rate specified, must be in interval [0, %.2f].", maxRate);
+        ch->PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Invalid rate specified, must be in interval [0, {:.2f}].", maxRate);
         return false;
     }
 
@@ -32,7 +32,7 @@ bool AzthPlayer::AzthSelfChangeXp(float rate) {
     if (sAZTH->GetAZTHPlayer(player)->GetPlayerQuestRate() == 0.0f)
         ch->PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Quest, kill & dungeon XP rate set to 0. You won't gain any experience from now on.");
     else
-        ch->PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Quest, kill & dungeon XP rate set to %.2f.", sAZTH->GetAZTHPlayer(player)->GetPlayerQuestRate());
+        ch->PSendSysMessage("|CFF7BBEF7[Custom Rates]|r: Quest, kill & dungeon XP rate set to {:.2f}.", sAZTH->GetAZTHPlayer(player)->GetPlayerQuestRate());
 
     return true;
 };
