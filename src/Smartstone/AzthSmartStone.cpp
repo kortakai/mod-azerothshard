@@ -19,9 +19,11 @@
 #include "MapMgr.h"
 #include "Map.h"
 #include "Group.h"
+#include <limits>
 #include "AZTH.h"
 #include "Apps.h"
 #include <unordered_map>
+#include <unordered_set>
 
 enum SmartStoneCommands
 {
@@ -52,6 +54,7 @@ enum SmartStoneCommands
     SMRTST_PREMIUM_REPAIR=59004,
     SMRTST_PREMIUM_WORKSHOP=59005,
     SMRTST_PREMIUM_XP_RATE=59006,
+    SMRTST_PREMIUM_RESTED_XP=59007,
     SMRTST_PREMIUM_XP_RATE_01=59010,
     SMRTST_PREMIUM_XP_RATE_05=59011,
     SMRTST_PREMIUM_XP_RATE_1=59012,
@@ -71,6 +74,27 @@ constexpr uint32 FIELD_WORKSHOP_COOLDOWN = 10 * MINUTE;
 
 std::unordered_map<uint32, time_t> activeWorkshops;
 std::unordered_map<uint32, time_t> workshopCooldowns;
+std::unordered_set<uint32> premiumRestedXpCharacters;
+
+bool IsPremiumRestedXpEnabled(Player const* player)
+{
+    QueryResult result = CharacterDatabase.Query(
+        "SELECT `enabled` FROM `character_premium_rested_xp` WHERE `guid` = {}", player->GetGUID().GetCounter());
+    return result && result->Fetch()[0].Get<uint8>() == 1;
+}
+
+void SetPremiumRestedXpEnabled(Player const* player, bool enabled)
+{
+    CharacterDatabase.Execute(
+        "INSERT INTO `character_premium_rested_xp` (`guid`, `enabled`) VALUES ({}, {}) "
+        "ON DUPLICATE KEY UPDATE `enabled` = VALUES(`enabled`)", player->GetGUID().GetCounter(), enabled ? 1 : 0);
+}
+
+void RefillPremiumRestedXp(Player* player)
+{
+    // SetRestBonus clamps this to the character's current maximum rested-XP pool.
+    player->SetRestBonus(std::numeric_limits<float>::max());
+}
 
 float GetSmartStoneXPSelection(uint32 action)
 {
@@ -284,6 +308,26 @@ public:
                     parent = SMRTST_PREMIUM_XP_RATE;
                     OnUse(player, item, SpellCastTargets());
                     return;
+                case SMRTST_PREMIUM_RESTED_XP:
+                {
+                    bool const enabled = !IsPremiumRestedXpEnabled(player);
+                    SetPremiumRestedXpEnabled(player, enabled);
+
+                    uint32 const guid = player->GetGUID().GetCounter();
+                    if (enabled)
+                    {
+                        premiumRestedXpCharacters.insert(guid);
+                        RefillPremiumRestedXp(player);
+                        ChatHandler(player->GetSession()).SendSysMessage("Constant Rested XP enabled.");
+                    }
+                    else
+                    {
+                        premiumRestedXpCharacters.erase(guid);
+                        player->SetRestBonus(0.0f);
+                        ChatHandler(player->GetSession()).SendSysMessage("Constant Rested XP disabled.");
+                    }
+                    break;
+                }
                 default:
                 {
                     float rate = GetSmartStoneXPSelection(action);
@@ -406,6 +450,9 @@ public:
             AddGossipItemFor(player, 0, "Mailbox", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_MAIL);
             AddGossipItemFor(player, 0, "Repair Equipment", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_REPAIR);
             AddGossipItemFor(player, 0, "Premium Field Workshop", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_WORKSHOP);
+            AddGossipItemFor(player, 0,
+                IsPremiumRestedXpEnabled(player) ? "Constant Rested XP: On" : "Constant Rested XP: Off",
+                GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_RESTED_XP);
             AddGossipItemFor(player, 0, "Experience Rate", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_XP_RATE);
         }
 
@@ -727,10 +774,43 @@ void SmartStone::SmartStoneSendListInventory(WorldSession *session, uint64 vendo
     session->SendPacket(&data);
 }
 
+class azth_premium_rested_xp : public PlayerScript
+{
+public:
+    azth_premium_rested_xp() : PlayerScript("azth_premium_rested_xp") { }
+
+    void OnPlayerLogin(Player* player) override
+    {
+        if (!IsPremiumSmartStoneAccount(player) || !IsPremiumRestedXpEnabled(player))
+            return;
+
+        premiumRestedXpCharacters.insert(player->GetGUID().GetCounter());
+        RefillPremiumRestedXp(player);
+    }
+
+    void OnPlayerGiveXP(Player* player, uint32& /*amount*/, Unit* /*victim*/, uint8 /*xpSource*/) override
+    {
+        if (premiumRestedXpCharacters.contains(player->GetGUID().GetCounter()))
+            RefillPremiumRestedXp(player);
+    }
+
+    void OnPlayerLevelChanged(Player* player, uint8 /*oldLevel*/) override
+    {
+        if (premiumRestedXpCharacters.contains(player->GetGUID().GetCounter()))
+            RefillPremiumRestedXp(player);
+    }
+
+    void OnPlayerLogout(Player* player) override
+    {
+        premiumRestedXpCharacters.erase(player->GetGUID().GetCounter());
+    }
+};
+
 void AddSC_azth_smart_stone() // Add to scriptloader normally
 {
     new azth_smart_stone();
     new azth_smartstone_world();
     new azth_smartstone_player_commands();
     new smartstone_vendor();
+    new azth_premium_rested_xp();
 }
