@@ -3,13 +3,16 @@
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Define.h"
+#include "GameObject.h"
 #include "GossipDef.h"
 #include "GameTime.h"
 #include "Item.h"
+#include "LootMgr.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "Random.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -65,6 +68,7 @@ enum SmartStoneCommands
 };
 
 constexpr uint32 AETHRO_SANCTUARY_VENDOR = 900004;
+constexpr uint32 AETHRO_LUCKY_ANGLER_ITEM = 900005;
 constexpr uint32 FIELD_WORKSHOP_ANVIL = 1744;
 constexpr uint32 FIELD_WORKSHOP_FORGE = 1743;
 constexpr uint32 FIELD_WORKSHOP_MOONWELL = 19260;
@@ -806,6 +810,51 @@ public:
     }
 };
 
+class aethro_lucky_angler : public PlayerScript
+{
+public:
+    aethro_lucky_angler() : PlayerScript("aethro_lucky_angler") { }
+
+    bool OnPlayerUpdateFishingSkill(Player* player, int32 /*skill*/, int32 /*zoneSkill*/, int32 /*chance*/,
+                                    int32 /*roll*/) override
+    {
+        Item* mainHand = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        if (mainHand && mainHand->GetEntry() == AETHRO_LUCKY_ANGLER_ITEM && roll_chance_i(25))
+            player->UpdateFishingSkill();
+
+        return true;
+    }
+
+    void OnPlayerBeforeSendLoot(Player* player, ObjectGuid lootGuid, Loot* loot) override
+    {
+        Item* mainHand = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        if (!mainHand || mainHand->GetEntry() != AETHRO_LUCKY_ANGLER_ITEM ||
+            loot->loot_type != LOOT_FISHING || !roll_chance_i(10))
+            return;
+
+        GameObject* bobber = player->GetMap()->GetGameObject(lootGuid);
+        if (!bobber || bobber->GetGoType() != GAMEOBJECT_TYPE_FISHINGNODE)
+            return;
+
+        uint32 zone;
+        uint32 area;
+        bobber->GetZoneAndAreaId(zone, area);
+
+        for (uint32 lootZone : {area, zone, 1u})
+        {
+            LootTemplate const* lootTemplate = LootTemplates_Fishing.GetLootFor(lootZone);
+            if (!lootTemplate)
+                continue;
+
+            // A bonus roll can never provide quest-only fishing items.
+            auto const questItemCount = loot->quest_items.size();
+            lootTemplate->Process(*loot, LootTemplates_Fishing, LOOT_MODE_DEFAULT, player, 0, true);
+            loot->quest_items.resize(questItemCount);
+            return;
+        }
+    }
+};
+
 void AddSC_azth_smart_stone() // Add to scriptloader normally
 {
     new azth_smart_stone();
@@ -813,4 +862,5 @@ void AddSC_azth_smart_stone() // Add to scriptloader normally
     new azth_smartstone_player_commands();
     new smartstone_vendor();
     new azth_premium_rested_xp();
+    new aethro_lucky_angler();
 }
