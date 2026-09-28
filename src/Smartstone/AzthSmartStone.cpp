@@ -1,6 +1,7 @@
 #include "AzthSmartStone.h"
 #include "Common.h"
 #include "Chat.h"
+#include "Config.h"
 #include "DatabaseEnv.h"
 #include "Define.h"
 #include "GameObject.h"
@@ -58,6 +59,7 @@ enum SmartStoneCommands
     SMRTST_PREMIUM_WORKSHOP=59005,
     SMRTST_PREMIUM_XP_RATE=59006,
     SMRTST_PREMIUM_RESTED_XP=59007,
+    SMRTST_PREMIUM_SANCTUARY=59008,
     SMRTST_PREMIUM_XP_RATE_01=59010,
     SMRTST_PREMIUM_XP_RATE_05=59011,
     SMRTST_PREMIUM_XP_RATE_1=59012,
@@ -161,6 +163,24 @@ bool CanUsePremiumSmartStoneService(Player* player)
 void SendPremiumSmartStoneDenied(Player* player)
 {
     ChatHandler(player->GetSession()).SendSysMessage("This SmartStone service requires an active Aethro Premium account.");
+}
+
+bool TeleportToSanctuary(Player* player)
+{
+    uint32 const map = sConfigMgr->GetOption<uint32>("AethroReforged.SanctuaryStone.Destination.Map", 573);
+    float const x = sConfigMgr->GetOption<float>("AethroReforged.SanctuaryStone.Destination.X", 128.44106f);
+    float const y = sConfigMgr->GetOption<float>("AethroReforged.SanctuaryStone.Destination.Y", 300.45688f);
+    float const z = sConfigMgr->GetOption<float>("AethroReforged.SanctuaryStone.Destination.Z", 0.0023937225f);
+    float const orientation = sConfigMgr->GetOption<float>("AethroReforged.SanctuaryStone.Destination.O", 5.033745f);
+
+    if (!player->TeleportTo(map, x, y, z, orientation))
+    {
+        ChatHandler(player->GetSession()).SendSysMessage("The Sanctuary refuses the path from here.");
+        return false;
+    }
+
+    ChatHandler(player->GetSession()).SendSysMessage("The Sanctuary opens for you.");
+    return true;
 }
 
 /*static*/ SmartStone* SmartStone::instance()
@@ -332,6 +352,9 @@ public:
                     }
                     break;
                 }
+                case SMRTST_PREMIUM_SANCTUARY:
+                    TeleportToSanctuary(player);
+                    break;
                 default:
                 {
                     float rate = GetSmartStoneXPSelection(action);
@@ -451,6 +474,7 @@ public:
         {
             AddGossipItemFor(player, 0, "Personal Bank", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_BANK);
             AddGossipItemFor(player, 0, "Premium Vendor", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_VENDOR);
+            AddGossipItemFor(player, 0, "Teleport to Sanctuary", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_SANCTUARY);
             AddGossipItemFor(player, 0, "Mailbox", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_MAIL);
             AddGossipItemFor(player, 0, "Repair Equipment", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_REPAIR);
             AddGossipItemFor(player, 0, "Premium Field Workshop", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_WORKSHOP);
