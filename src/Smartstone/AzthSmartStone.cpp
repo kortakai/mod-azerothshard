@@ -164,7 +164,7 @@ bool CanUsePremiumSmartStoneService(Player* player)
 
 void SendPremiumSmartStoneDenied(Player* player)
 {
-    ChatHandler(player->GetSession()).SendSysMessage("This SmartStone service requires an active Aethro Premium account.");
+    ChatHandler(player->GetSession()).SendSysMessage("This Aethro Box service requires an active Aethro Premium account.");
 }
 
 bool TeleportToSanctuary(Player* player)
@@ -292,7 +292,7 @@ public:
                 return;
             }
             if (!CanUsePremiumSmartStoneService(player)) {
-                ChatHandler(player->GetSession()).SendSysMessage("This SmartStone service cannot be used in your current state.");
+                ChatHandler(player->GetSession()).SendSysMessage("This Aethro Box service cannot be used in your current state.");
                 CloseGossipMenuFor(player);
                 return;
             }
