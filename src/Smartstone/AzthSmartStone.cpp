@@ -71,6 +71,8 @@ enum SmartStoneCommands
 
 constexpr uint32 AETHRO_SANCTUARY_VENDOR = 900004;
 constexpr uint32 AETHRO_LUCKY_ANGLER_ITEM = 900005;
+constexpr uint32 AETHRO_SANCTUARY_STONE_ITEM = 900001;
+constexpr uint32 AETHRO_BOX_ITEM = 32547;
 constexpr uint32 FIELD_WORKSHOP_ANVIL = 1744;
 constexpr uint32 FIELD_WORKSHOP_FORGE = 1743;
 constexpr uint32 FIELD_WORKSHOP_MOONWELL = 19260;
@@ -834,6 +836,33 @@ public:
     }
 };
 
+class aethro_sanctuary_stone_migration : public PlayerScript
+{
+public:
+    aethro_sanctuary_stone_migration() : PlayerScript("aethro_sanctuary_stone_migration") { }
+
+    void OnPlayerLogin(Player* player) override
+    {
+        // The SmartStone now contains the Sanctuary service. Remove the retired
+        // standalone item before finding a slot for a missing Aethro Box.
+        player->DestroyItemCount(AETHRO_SANCTUARY_STONE_ITEM, std::numeric_limits<uint32>::max(), true);
+
+        if (player->HasItemCount(AETHRO_BOX_ITEM, 1, true))
+            return;
+
+        ItemPosCountVec destinations;
+        if (player->CanStoreNewItem(NULL_BAG, NULL_SLOT, destinations, AETHRO_BOX_ITEM, 1) == EQUIP_ERR_OK)
+        {
+            if (Item* item = player->StoreNewItem(destinations, AETHRO_BOX_ITEM, true))
+                player->SendNewItem(item, 1, true, false, false, false);
+            return;
+        }
+
+        // Keep the migration reliable when every bag slot is occupied.
+        player->SendItemRetrievalMail(AETHRO_BOX_ITEM, 1);
+    }
+};
+
 class aethro_lucky_angler : public PlayerScript
 {
 public:
@@ -886,5 +915,6 @@ void AddSC_azth_smart_stone() // Add to scriptloader normally
     new azth_smartstone_player_commands();
     new smartstone_vendor();
     new azth_premium_rested_xp();
+    new aethro_sanctuary_stone_migration();
     new aethro_lucky_angler();
 }
