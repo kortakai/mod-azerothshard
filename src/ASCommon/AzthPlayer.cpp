@@ -639,7 +639,7 @@ void AzthPlayer::CreateWowarmoryFeed(uint32 type, uint32 data, uint32 item_guid,
     *   3 - TYPE_BOSS_FEED
     */
 
-    if (!player->GetGUID().IsEmpty())
+    if (!player || player->GetGUID().IsEmpty())
     {
         LOG_ERROR("server", "[Wowarmory]: player is not initialized, unable to create log entry!");
         return;

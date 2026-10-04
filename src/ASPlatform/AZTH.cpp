@@ -161,28 +161,22 @@ AzthObject* AZTH::GetAZTHObject(Object* object)
 AzthGroupMgr* AZTH::GetAZTHGroup(Group* group)
 {
     if (!group)
-    {
         return nullptr;
-    }
 
-    if (!_groupStore.count(group))
-    {
-        LOG_ERROR("server", "AZTH::GetAZTHGroup - !_groupStore.count(group)");
+    auto const itr = _groupStore.find(group);
+    if (itr == _groupStore.end())
         return nullptr;
-    }
 
-    return _groupStore[group];
+    return itr->second;
 }
 
 AzthInstanceMgr* AZTH::GetAZTHInstanceSave(InstanceSave* instanceSave)
 {
-    if (!_instanceSaveStore.count(instanceSave))
-    {
-        LOG_ERROR("server", "AZTH::GetAZTHInstanceSave - !_instanceSaveStore.count(instanceSave)");
+    auto const itr = _instanceSaveStore.find(instanceSave);
+    if (itr == _instanceSaveStore.end())
         return nullptr;
-    }
 
-    return _instanceSaveStore[instanceSave];
+    return itr->second;
 }
 
 bool AZTH::GetAZTHLoot(Loot* loot)
