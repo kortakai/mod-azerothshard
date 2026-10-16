@@ -59,7 +59,7 @@ enum SmartStoneCommands
     SMRTST_PREMIUM_WORKSHOP=59005,
     SMRTST_PREMIUM_XP_RATE=59006,
     SMRTST_PREMIUM_RESTED_XP=59007,
-    SMRTST_PREMIUM_SANCTUARY=59008,
+    SMRTST_PREMIUM_ELYSIAN_RETREAT=59008,
     SMRTST_PREMIUM_XP_RATE_01=59010,
     SMRTST_PREMIUM_XP_RATE_05=59011,
     SMRTST_PREMIUM_XP_RATE_1=59012,
@@ -69,9 +69,9 @@ enum SmartStoneCommands
     SMRTST_PREMIUM_XP_RATE_5=59016,
 };
 
-constexpr uint32 AETHRO_SANCTUARY_VENDOR = 900004;
+constexpr uint32 AETHRO_PREMIUM_VENDOR = 900004;
 constexpr uint32 AETHRO_LUCKY_ANGLER_ITEM = 900005;
-constexpr uint32 AETHRO_SANCTUARY_STONE_ITEM = 900001;
+constexpr uint32 AETHRO_RETIRED_TELEPORT_STONE_ITEM = 900001;
 constexpr uint32 AETHRO_BOX_ITEM = 32547;
 constexpr uint32 FIELD_WORKSHOP_ANVIL = 1744;
 constexpr uint32 FIELD_WORKSHOP_FORGE = 1743;
@@ -167,21 +167,21 @@ void SendPremiumSmartStoneDenied(Player* player)
     ChatHandler(player->GetSession()).SendSysMessage("This Aethro Box service requires an active Aethro Premium account.");
 }
 
-bool TeleportToSanctuary(Player* player)
+bool TeleportToElysianRetreat(Player* player)
 {
-    uint32 const map = sConfigMgr->GetOption<uint32>("AethroReforged.SanctuaryStone.Destination.Map", 573);
-    float const x = sConfigMgr->GetOption<float>("AethroReforged.SanctuaryStone.Destination.X", 128.44106f);
-    float const y = sConfigMgr->GetOption<float>("AethroReforged.SanctuaryStone.Destination.Y", 300.45688f);
-    float const z = sConfigMgr->GetOption<float>("AethroReforged.SanctuaryStone.Destination.Z", 0.0023937225f);
-    float const orientation = sConfigMgr->GetOption<float>("AethroReforged.SanctuaryStone.Destination.O", 5.033745f);
+    uint32 const map = sConfigMgr->GetOption<uint32>("AethroReforged.ElysianRetreat.Destination.Map", 530);
+    float const x = sConfigMgr->GetOption<float>("AethroReforged.ElysianRetreat.Destination.X", 10349.6f);
+    float const y = sConfigMgr->GetOption<float>("AethroReforged.ElysianRetreat.Destination.Y", -6357.3f);
+    float const z = sConfigMgr->GetOption<float>("AethroReforged.ElysianRetreat.Destination.Z", 33.4f);
+    float const orientation = sConfigMgr->GetOption<float>("AethroReforged.ElysianRetreat.Destination.O", 5.31605f);
 
     if (!player->TeleportTo(map, x, y, z, orientation))
     {
-        ChatHandler(player->GetSession()).SendSysMessage("The Sanctuary refuses the path from here.");
+        ChatHandler(player->GetSession()).SendSysMessage("The path to the Elysian Retreat cannot be opened from here.");
         return false;
     }
 
-    ChatHandler(player->GetSession()).SendSysMessage("The Sanctuary opens for you.");
+    ChatHandler(player->GetSession()).SendSysMessage("The Elysian Retreat welcomes you.");
     return true;
 }
 
@@ -308,7 +308,7 @@ public:
                 case SMRTST_PREMIUM_VENDOR:
                 {
                     Position pos = player->GetNearPosition(2.0f, 0.0f);
-                    if (Creature* vendor = player->SummonCreature(AETHRO_SANCTUARY_VENDOR, pos,
+                    if (Creature* vendor = player->SummonCreature(AETHRO_PREMIUM_VENDOR, pos,
                         TEMPSUMMON_TIMED_DESPAWN, 90 * IN_MILLISECONDS))
                         player->GetSession()->SendListInventory(vendor->GetGUID());
                     else
@@ -354,8 +354,8 @@ public:
                     }
                     break;
                 }
-                case SMRTST_PREMIUM_SANCTUARY:
-                    TeleportToSanctuary(player);
+                case SMRTST_PREMIUM_ELYSIAN_RETREAT:
+                    TeleportToElysianRetreat(player);
                     break;
                 default:
                 {
@@ -476,7 +476,8 @@ public:
         {
             AddGossipItemFor(player, 0, "Personal Bank", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_BANK);
             AddGossipItemFor(player, 0, "Premium Vendor", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_VENDOR);
-            AddGossipItemFor(player, 0, "Teleport to Sanctuary", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_SANCTUARY);
+            AddGossipItemFor(player, 0, "Teleport to Elysian Retreat", GOSSIP_SENDER_MAIN,
+                SMRTST_PREMIUM_ELYSIAN_RETREAT);
             AddGossipItemFor(player, 0, "Mailbox", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_MAIL);
             AddGossipItemFor(player, 0, "Repair Equipment", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_REPAIR);
             AddGossipItemFor(player, 0, "Premium Field Workshop", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_WORKSHOP);
@@ -836,16 +837,16 @@ public:
     }
 };
 
-class aethro_sanctuary_stone_migration : public PlayerScript
+class aethro_elysian_retreat_box_migration : public PlayerScript
 {
 public:
-    aethro_sanctuary_stone_migration() : PlayerScript("aethro_sanctuary_stone_migration") { }
+    aethro_elysian_retreat_box_migration() : PlayerScript("aethro_elysian_retreat_box_migration") { }
 
     void OnPlayerLogin(Player* player) override
     {
-        // The SmartStone now contains the Sanctuary service. Remove the retired
+        // The Aethro Box now contains the Elysian Retreat service. Remove the retired
         // standalone item before finding a slot for a missing Aethro Box.
-        player->DestroyItemCount(AETHRO_SANCTUARY_STONE_ITEM, std::numeric_limits<uint32>::max(), true);
+        player->DestroyItemCount(AETHRO_RETIRED_TELEPORT_STONE_ITEM, std::numeric_limits<uint32>::max(), true);
 
         if (player->HasItemCount(AETHRO_BOX_ITEM, 1, true))
             return;
@@ -915,6 +916,6 @@ void AddSC_azth_smart_stone() // Add to scriptloader normally
     new azth_smartstone_player_commands();
     new smartstone_vendor();
     new azth_premium_rested_xp();
-    new aethro_sanctuary_stone_migration();
+    new aethro_elysian_retreat_box_migration();
     new aethro_lucky_angler();
 }
