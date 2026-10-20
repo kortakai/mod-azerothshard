@@ -197,7 +197,7 @@ class npc_guild_master : public CreatureScript
         if (player->IsGameMaster())
             guildsize = 20000;
 
-        result = CharacterDatabase.Query("SELECT `id`, `comment`, `price` FROM `guildhouses` WHERE `guildId`=0 AND (`faction`=3 OR `faction`={}) AND `id` > {} AND `minguildsize` <= {} ORDER BY `id` ASC LIMIT {}", (player->GetTeamId(true) == TEAM_HORDE)?1:0, showFromId, guildsize, GOSSIP_COUNT_MAX);
+        result = CharacterDatabase.Query("SELECT `id`, `comment`, `price` FROM `guildhouses` WHERE `guildId`=0 AND (`faction`=3 OR `faction`={}) AND `id` > {} AND `minguildsize` <= {} ORDER BY `id` ASC LIMIT {}", (player->GetTeamId() == TEAM_HORDE)?1:0, showFromId, guildsize, GOSSIP_COUNT_MAX);
 
         if (result)
         {
@@ -808,7 +808,7 @@ class npc_buffnpc : public CreatureScript
         //player->SetTaxiCheater(true);
 
         // Main Menu for Alliance
-        if ( player->GetTeamId(true) == TEAM_ALLIANCE )
+        if ( player->GetTeamId() == TEAM_ALLIANCE )
         {
             AddGossipItemFor(player, 5, "Remove Res Sickness"                           , GOSSIP_SENDER_MAIN, 1180);
             //AddGossipItemFor(player, 5, "Give me gold"                                , GOSSIP_SENDER_MAIN, 1185);
@@ -974,13 +974,24 @@ void Teleport(Player *player, uint16 map,
                 float X, float Y, float Z, float orient)
 {
     uint32 aurDim=sAZTH->GetAZTHPlayer(player)->getCurrentDimensionByAura();
+    uint32 phaseMask = player->GetPhaseMask();
     if (sAzthUtils->isPhasedDimension(aurDim) && !sAZTH->GetAZTHPlayer(player)->changeDimension(DIMENSION_NORMAL, true))
         return;
 
     CloseGossipMenuFor(player);
     player->CastSpell(player, SPELL_VISUAL_TELEPORT, true);
-    if (!player->TeleportTo(map, X, Y, Z, orient) && sAzthUtils->isPhasedDimension(aurDim))
-        sAZTH->GetAZTHPlayer(player)->changeDimension(aurDim); // we have to restore old dimension to avoid exploits if teleport failed
+    // The Elysian Retreat uses a server phase independently of the legacy
+    // Aethro dimension aura. Clear it for every ordinary portal destination;
+    // otherwise same-map destinations such as Shattrath can retain the
+    // private Retreat phase and appear in the wrong world state.
+    player->SetPhaseMask(PHASEMASK_NORMAL, true);
+
+    if (!player->TeleportTo(map, X, Y, Z, orient))
+    {
+        player->SetPhaseMask(phaseMask, true);
+        if (sAzthUtils->isPhasedDimension(aurDim))
+            sAZTH->GetAZTHPlayer(player)->changeDimension(aurDim);
+    }
 };
 
 class npc_portal : public CreatureScript
@@ -996,7 +1007,7 @@ class npc_portal : public CreatureScript
         AddGossipItemFor(player, 5, "Teleport Wintergrasp"          , GOSSIP_SENDER_MAIN, 1100);
 
         // Main Menu for Alliance
-        if ( player->GetTeamId(true) == TEAM_ALLIANCE )
+        if ( player->GetTeamId() == TEAM_ALLIANCE )
         {
             AddGossipItemFor(player, 5, "Teleport Stormwind"            , GOSSIP_SENDER_MAIN, 1015);
             AddGossipItemFor(player, 5, "Teleport Ironforge"            , GOSSIP_SENDER_MAIN, 1020);

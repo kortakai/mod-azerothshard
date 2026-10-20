@@ -181,6 +181,9 @@ bool TeleportToElysianRetreat(Player* player)
         return false;
     }
 
+    player->SetPhaseMask(sConfigMgr->GetOption<uint32>(
+        "AethroReforged.ElysianRetreat.PhaseMask", 2048), true);
+
     ChatHandler(player->GetSession()).SendSysMessage("The Elysian Retreat welcomes you.");
     return true;
 }
