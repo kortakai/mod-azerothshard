@@ -125,7 +125,7 @@ public:
 
             azthAchievementList[azthAchievement_field[1].Get<uint32>()] = AzthAchievement(
                 // achievement                                criteria                           Points                                 category                           parentCategory                    difficulty
-                azthAchievement_field[0].Get<uint32>(), azthAchievement_field[1].Get<uint32>(), azthAchievement_field[2].Get<uint32>(), azthAchievement_field[3].Get<uint32>(), azthAchievement_field[4].Get<uint32>(), azthAchievement_field[5].Get<uint32>(),
+                azthAchievement_field[0].Get<uint32>(), azthAchievement_field[1].Get<uint32>(), azthAchievement_field[2].Get<uint32>(), azthAchievement_field[3].Get<uint32>(), azthAchievement_field[4].Get<int32>(), azthAchievement_field[5].Get<float>(),
                 // levelMax                                 levelMin                                    level                              originalPoints                        Name                              Description
                 azthAchievement_field[6].Get<uint32>(), azthAchievement_field[7].Get<uint32>(), azthAchievement_field[8].Get<uint32>(), azthAchievement_field[9].Get<uint32>(), azthAchievement_field[10].Get<std::string>(), azthAchievement_field[11].Get<std::string>(),
                 //reward                                        rewardCount                             killcredit                      specialLevelReq                         reqDimension

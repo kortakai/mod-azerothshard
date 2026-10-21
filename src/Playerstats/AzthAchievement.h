@@ -14,8 +14,8 @@ public:
     uint32 GetCriteria() const;
     uint32 GetPoints() const;
     uint32 GetCategory() const;
-    uint32 GetParCategory() const;
-    uint32 GetDifficulty() const;
+    int32 GetParCategory() const;
+    float GetDifficulty() const;
     uint32 GetLevelMax() const;
     uint32 GetLevelMin() const;
     uint32 GetLevel() const;
@@ -28,7 +28,7 @@ public:
     uint32 GetSpecialLevelReq() const;
     uint32 GetReqDimension() const;
 
-    AzthAchievement(uint32 achievement = 0, uint32 criteria = 0, uint32 points = 0, uint32 category = 0, uint32 parentCategory = 0, uint32 difficulty = 0, uint32 levelMax = 0,
+    AzthAchievement(uint32 achievement = 0, uint32 criteria = 0, uint32 points = 0, uint32 category = 0, int32 parentCategory = 0, float difficulty = 0, uint32 levelMax = 0,
                     uint32 levelMin = 0, uint32 level = 0, uint32 originalPoints = 0, std::string name = "", std::string description = "", uint32 reward = 0, uint32 rewardCount = 0, uint32 killCredit = 0,
                     uint32 specialLevelReq = 0, uint32 reqDimension = 0);
 
@@ -38,8 +38,8 @@ private:
     uint32 criteria;
     uint32 points;
     uint32 category;
-    uint32 parentCategory;
-    uint32 difficulty;
+    int32 parentCategory;
+    float difficulty;
     uint32 levelMax;
     uint32 levelMin;
     uint32 level;

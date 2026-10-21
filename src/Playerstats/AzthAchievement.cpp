@@ -6,7 +6,7 @@ AzthAchievementMgr* AzthAchievementMgr::instance()
     return &instance;
 }
 
-AzthAchievement::AzthAchievement(uint32 achievement, uint32 criteria, uint32 points, uint32 category, uint32 parentCategory, uint32 difficulty, uint32 levelMax, uint32 levelMin,
+AzthAchievement::AzthAchievement(uint32 achievement, uint32 criteria, uint32 points, uint32 category, int32 parentCategory, float difficulty, uint32 levelMax, uint32 levelMin,
                                  uint32 level, uint32 originalPoints, std::string name, std::string description, uint32 reward, uint32 rewardCount, uint32 killCredit, uint32 specialLevelReq, uint32 reqDimension)
 {
     this->achievement = achievement;
@@ -48,12 +48,12 @@ uint32 AzthAchievement::GetCategory() const
     return category;
 }
 
-uint32 AzthAchievement::GetParCategory() const
+int32 AzthAchievement::GetParCategory() const
 {
     return parentCategory;
 }
 
-uint32 AzthAchievement::GetDifficulty() const
+float AzthAchievement::GetDifficulty() const
 {
     return difficulty;
 }
