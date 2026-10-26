@@ -47,6 +47,14 @@ enum SmartStoneCommands
     SMRTST_TELEPORT_HOUSE=14,
     SMRTST_SHOP_MENU=2000, //unused
     SMRTST_BACK_MENU=2001,
+    SMRTST_GUIDE_MENU = 58000,
+    SMRTST_GUIDE_OVERVIEW = 58001,
+    SMRTST_GUIDE_BEYOND_BOUNDARIES = 58002,
+    SMRTST_GUIDE_TERRITORIES = 58003,
+    SMRTST_GUIDE_CUSTOM_NPCS = 58004,
+    SMRTST_GUIDE_FEATURES = 58005,
+    SMRTST_GUIDE_WEB = 58006,
+    SMRTST_GUIDE_PREMIUM = 58007,
     SMRTST_README=60402,
     SMRTST_README_CHILD=60400,
     // Keep Premium actions below the database readme menu range (60400+).
@@ -288,6 +296,92 @@ public:
             return;
         }
 
+        if (action >= SMRTST_GUIDE_MENU && action <= SMRTST_GUIDE_PREMIUM)
+        {
+            ChatHandler chat(player->GetSession());
+            switch (action)
+            {
+                case SMRTST_GUIDE_MENU:
+                    parent = SMRTST_GUIDE_MENU;
+                    OnUse(player, item, SpellCastTargets());
+                    return;
+                case SMRTST_GUIDE_OVERVIEW:
+                    chat.SendSysMessage("Aethro: Reforged keeps Wrath 3.3.5a at its core and adds new ways to "
+                        "build, progress, group, and explore.");
+                    chat.SendSysMessage("Choose a permanent Alliance or Horde Allegiance, use /1 for realm-wide "
+                        "Global Chat, and follow the Aethro-specific NPCs in starter villages and capital cities.");
+                    chat.SendSysMessage("This Aethro Box belongs to every character. Its guide is for everyone; "
+                        "the convenience tools under Premium Services remain Premium-only.");
+                    break;
+                case SMRTST_GUIDE_BEYOND_BOUNDARIES:
+                    chat.SendSysMessage("Beyond the Boundaries expands what your character can become: Reforged "
+                        "supports expanded race/class combinations, while Allegiance decides the side you serve.");
+                    chat.SendSysMessage("At level 10, visit Magister Vaelith Dawnspire for The Armor Master's Trial. "
+                        "Complete it to equip ordinary cloth, leather, mail, and plate regardless of class.");
+                    chat.SendSysMessage("Class- or race-restricted gear, tier items, weapons, shields, relics, level "
+                        "requirements, and other item rules still apply.");
+                    chat.SendSysMessage("You may learn up to three primary professions. Cooking, Fishing, First Aid, "
+                        "and profession specializations do not consume those three slots.");
+                    break;
+                case SMRTST_GUIDE_TERRITORIES:
+                    chat.SendSysMessage("Outdoor quests, eligible creature kills, elite kills, and opposing-Allegiance "
+                        "player kills build Influence for your Allegiance in eligible regions.");
+                    chat.SendSysMessage("A region can be claimed at 100 total Influence and 60% control. A controlled "
+                        "region grants its owners a 5% repair discount and 5% reputation bonus while they are there.");
+                    chat.SendSysMessage("During announced Territory Wars, fight opposing players and capture active "
+                        "objectives. Fortification levels strengthen the defending Allegiance.");
+                    chat.SendSysMessage("Vaelor Markbinder trades 1 Mark of Azeroth for 1 gold in Stormwind or "
+                        "Orgrimmar, and accepts 5 Marks as an investment inside your Allegiance's territory.");
+                    chat.SendSysMessage("Full guide: https://playaethro.online/games/reforged/territories");
+                    break;
+                case SMRTST_GUIDE_CUSTOM_NPCS:
+                    chat.SendSysMessage("Astrael, Envoy of Allegiance: your starter guide at the Summit of Allegiance "
+                        "and a character-services envoy in the Elysian Retreat.");
+                    chat.SendSysMessage("Magister Vaelith Dawnspire: class training and Aethro class trials in starter "
+                        "villages; at level 10, he also offers The Armor Master's Trial.");
+                    chat.SendSysMessage("Vaelor Markbinder: exchange Marks of Azeroth in Stormwind and Orgrimmar, or "
+                        "invest them while standing in a territory controlled by your Allegiance.");
+                    chat.SendSysMessage("Krix'ik the Unbound: Premium Mythic+ Keywright in the Elysian Retreat. He "
+                        "exchanges 5 Marks for a Tier 1 Keystone when you are not already carrying one.");
+                    chat.SendSysMessage("Lazirath: character services in the Elysian Retreat. Premium-only NPCs are "
+                        "identified here for reference but still require Retreat access.");
+                    break;
+                case SMRTST_GUIDE_FEATURES:
+                    chat.SendSysMessage("Quick commands: /1 <message> for Global Chat, /rbank for account reagent "
+                        "storage, .aoeloot on for nearby corpses, and /campui for the Warband Camp interface.");
+                    chat.SendSysMessage("Warband Camps are account-wide, phased open-world camps with privacy, decor, "
+                        "visitors, services, and 30 standard props or 100 with Premium.");
+                    chat.SendSysMessage("Guild Villages, PlayerBots, the Bounty Board, playtime rewards, custom "
+                        "titles, Old World Flying, and post-80 Paragon progression add longer-term goals.");
+                    chat.SendSysMessage("Mythic+ uses dungeon-attuned Keystones and is designed for real player "
+                        "groups; PlayerBot compatibility is not guaranteed there.");
+                    break;
+                case SMRTST_GUIDE_WEB:
+                    chat.SendSysMessage("Reforged feature guide: "
+                        "https://playaethro.online/games/reforged/features");
+                    chat.SendSysMessage("Territories: https://playaethro.online/games/reforged/territories");
+                    chat.SendSysMessage("Warband Camps: https://playaethro.online/games/reforged/warband-camps");
+                    chat.SendSysMessage("PlayerBots: https://playaethro.online/games/reforged/features/playerbots");
+                    chat.SendSysMessage("Premium: https://playaethro.online/games/reforged/premium");
+                    chat.SendSysMessage("News and announcements: https://playaethro.online/forums");
+                    break;
+                case SMRTST_GUIDE_PREMIUM:
+                    chat.SendSysMessage("Aethro Premium supports the realm and unlocks the Aethro Box convenience "
+                        "services: bank, mail, repairs, Premium Vendor, field workshop, personal XP rate, constant "
+                        "rested XP, and the Elysian Retreat.");
+                    chat.SendSysMessage("Premium also raises the Warband Camp prop allowance from 30 to 100 and "
+                        "includes the current supporter rewards listed on the website.");
+                    chat.SendSysMessage("Premium details: https://playaethro.online/games/reforged/premium");
+                    break;
+                default:
+                    break;
+            }
+
+            parent = SMRTST_GUIDE_MENU;
+            OnUse(player, item, SpellCastTargets());
+            return;
+        }
+
         if (action >= SMRTST_PREMIUM_MENU && action <= SMRTST_PREMIUM_XP_RATE_5) {
             if (!IsPremiumSmartStoneAccount(player)) {
                 SendPremiumSmartStoneDenied(player);
@@ -472,7 +566,26 @@ public:
 
         if (parent == 1) // Aethro-only main menu
         {
-            AddGossipItemFor(player, 0, "Premium Services", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_MENU);
+            AddGossipItemFor(player, 0, "Aethro Reforged Guide", GOSSIP_SENDER_MAIN, SMRTST_GUIDE_MENU);
+            if (IsPremiumSmartStoneAccount(player))
+                AddGossipItemFor(player, 0, "Premium Services", GOSSIP_SENDER_MAIN, SMRTST_PREMIUM_MENU);
+        }
+
+        if (parent == SMRTST_GUIDE_MENU)
+        {
+            AddGossipItemFor(player, 0, "Start Here: Reforged at a Glance", GOSSIP_SENDER_MAIN,
+                SMRTST_GUIDE_OVERVIEW);
+            AddGossipItemFor(player, 0, "Beyond the Boundaries", GOSSIP_SENDER_MAIN,
+                SMRTST_GUIDE_BEYOND_BOUNDARIES);
+            AddGossipItemFor(player, 0, "Territories & Territory Wars", GOSSIP_SENDER_MAIN,
+                SMRTST_GUIDE_TERRITORIES);
+            AddGossipItemFor(player, 0, "Custom NPC Directory", GOSSIP_SENDER_MAIN,
+                SMRTST_GUIDE_CUSTOM_NPCS);
+            AddGossipItemFor(player, 0, "More Reforged Features", GOSSIP_SENDER_MAIN,
+                SMRTST_GUIDE_FEATURES);
+            AddGossipItemFor(player, 0, "Website Guides & Community", GOSSIP_SENDER_MAIN,
+                SMRTST_GUIDE_WEB);
+            AddGossipItemFor(player, 0, "Aethro Premium", GOSSIP_SENDER_MAIN, SMRTST_GUIDE_PREMIUM);
         }
 
         if (parent == SMRTST_PREMIUM_MENU)
@@ -536,7 +649,9 @@ public:
                 }
             }
 
-            if (parent != 1 && parent != SMRTST_PREMIUM_MENU && command.id != 0 && command.parent_menu == parent) {
+            if (parent != 1 && parent != SMRTST_GUIDE_MENU && parent != SMRTST_PREMIUM_MENU &&
+                command.id != 0 && command.parent_menu == parent)
+            {
                 if (command.type != DO_SCRIPTED_ACTION_WITH_CODE) {
                     AddGossipItemFor(player,command.icon, text, GOSSIP_SENDER_MAIN, command.id);
                 } else {
