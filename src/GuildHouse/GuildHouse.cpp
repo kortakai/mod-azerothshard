@@ -273,61 +273,44 @@ bool GuildHouseObject::AddGuildHouseAdd(uint32 id, uint32 add, uint32 guild)
 
 void GuildHouseObject::LoadGuildHouse()
 {
-    // GH_map.clear();
-    // QueryResult result = ExtraDatabase.Query("SELECT `id`,`guildId`,`x`,`y`,`z`,`map`,`minguildsize`,`price` FROM `guildhouses` ORDER BY guildId ASC");
+    GH_map.clear();
+    QueryResult result = CharacterDatabase.Query(
+        "SELECT `id`, `guildId`, `x`, `y`, `z`, `map`, `minguildsize`, `price` "
+        "FROM `guildhouses` WHERE `guildId` <> 0 ORDER BY `guildId` ASC");
 
-    // if (!result)
-    // {
-    //     sLog->outError("Loaded 0 Guildhouses - NO RESULT FROM QUERY");
-    //     return;
-    // }
+    if (!result)
+    {
+        LOG_INFO("server", "Loaded 0 Guildhouses");
+        return;
+    }
 
-    // do
-    // {
-    //     Field *fields = result->Fetch();
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 const id = fields[0].Get<uint32>();
+        uint32 const guildID = fields[1].Get<uint32>();
 
-    //     uint32 id = fields[0].GetUInt32();
-    //     uint32 guildID = fields[1].GetUInt32();
-    //     float x   = fields[2].GetFloat();
-    //     float y   = fields[3].GetFloat();
-    //     float z   = fields[4].GetFloat();
-    //     uint32 map = fields[5].GetUInt32();
-    //     uint32 min_member = fields[6].GetUInt32();
-    //     uint32 cost = fields[7].GetUInt32();
-    //     uint32 add = 1;
+        if (!CheckGuildID(guildID))
+        {
+            LOG_ERROR("server", "Guild {} does not exist - guildhouse {} not loaded", guildID, id);
+            continue;
+        }
 
-    //     if(guildID)
-    //     {
-	// 		if (!CheckGuildID(guildID))
-	// 		{
-    //             sLog->outError("Guild %u does not exist - guildhouse not loaded", guildID);
-	// 			continue;
-	// 		}
+        uint32 add = 1;
+        if (QueryResult addResult = CharacterDatabase.Query(
+                "SELECT `GuildHouse_Add` FROM `gh_guildadd` WHERE `guildId` = {}", guildID))
+        {
+            add = (*addResult)[0].Get<uint32>();
+        }
 
+        GuildHouse guildHouse(guildID, id, fields[2].Get<float>(), fields[3].Get<float>(),
+            fields[4].Get<float>(), fields[5].Get<uint32>(), fields[6].Get<uint32>(),
+            fields[7].Get<uint32>(), add);
+        GH_map[guildID] = guildHouse;
 
-    //         QueryResult result2 = CharacterDatabase.PQuery("SELECT `GuildHouse_Add` FROM `gh_guildadd` WHERE `guildId` = %u", guildID);
-    //         if (result2)
-    //         {
-    //             sLog->outError("Loaded guildadd information for guild %u", guildID);
-    //             Field *fields2 = result2->Fetch();
-    //             add = fields2[0].GetUInt32();
-    //         }
-
-    //         GuildHouse NewGH(guildID, id, x, y, z, map, min_member, cost, add);
-    //         GH_map[guildID] = NewGH;
-
-    //         RemoveGuildHouseAdd(id);
-    //         AddGuildHouseAdd(id, add, guildID);
-    //     }
-	// 	else
-    //     {
-    //         sLog->outError("Loading GH for guild %u failed - NOT VALID", guildID);
-    //         //  do not despawn objects/npc if a guild house does not have a guild, so both GM and players can see
-    //         // a guild house fully if It is not purchased
-	// 		//RemoveGuildHouseAdd(id);
-	// 	}
-    // }
-    // while (result->NextRow());
+        RemoveGuildHouseAdd(id);
+        AddGuildHouseAdd(id, add, guildID);
+    } while (result->NextRow());
 
     LOG_INFO("server", "Loaded {} Guildhouses", GH_map.size());
 }
