@@ -1456,7 +1456,7 @@ public:
         if (!spell)
             return false;
 
-        if (!sAzthUtils->canPrepareSpell(spell, spell->GetCaster(), spell->GetSpellInfo(), targets, triggeredByAura))
+        if (!sAzthUtils->canPrepareSpell(spell, spell->GetCaster()->ToUnit(), spell->GetSpellInfo(), targets, triggeredByAura))
             return false;
 
         return true;
