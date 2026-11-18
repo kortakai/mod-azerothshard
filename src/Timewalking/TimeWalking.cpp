@@ -24,6 +24,7 @@ typedef std::map<uint32, TwRaid> RaidList;
 RaidList raidList;
 std::map<uint32, AzthLevelStat> timeWalkingLevelsStatsList;
 std::map<uint32, AzthAchievement> azthAchievementList;
+constexpr uint32 AETHRO_DISABLED_TELABIM_BANANA_REWARD = 4537;
 
 enum npc_timewalking_enum
 {
@@ -443,6 +444,12 @@ public:
         /*
          *  END
          */
+
+        // Aethro intentionally removed the old joke reward that handed out
+        // Tel'Abim Bananas for repeat statistics such as waves and NPC kills.
+        // Keep the source-level guard so stale achievement data cannot restore it.
+        if (reward == AETHRO_DISABLED_TELABIM_BANANA_REWARD)
+            return;
 
         // to achieve it you must be in range
         if (count > 0) {
